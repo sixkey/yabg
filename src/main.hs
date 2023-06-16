@@ -21,6 +21,8 @@ import Text.Pandoc ( readMarkdown )
 import Control.Monad.Except ( ExceptT )
 import Path ( mkRelDir )
 import Path.Like ( toPath )
+import qualified Text.Pandoc.Walk as P
+import Debug.Trace (traceShowId)
 
 -- Data -----------------------------------------------------------------------
 
@@ -33,7 +35,7 @@ data YabgSettings = YabgSettings { srcPath :: FilePath
                                  , dirsToCopy :: [ FilePath ]
                                  , defLinks :: [ String ] }
 
--- File IO --------------------------------------------------------------------
+-- Misc. IO -------------------------------------------------------------------
 
 changeExt :: String -> FilePath -> FilePath
 changeExt ext filepath = dropExtension filepath <.> ext
@@ -46,15 +48,6 @@ copyDir srcDir dstDir = pathWalk srcDir $ \ dir subdirs files ->
            copyFile wholeFile ( tr wholeFile )
     where
        tr = translatePath srcDir dstDir
-
-readPost :: FilePath -> IO ( H.Html, P.Meta )
-readPost filePath = do content <- pack <$> readFile filePath
-                       P.runIOorExplode $
-                         do document <- P.readMarkdown
-                                        P.def{ P.readerExtensions = P.extensionsFromList $ pure P.Ext_yaml_metadata_block }
-                                        content
-                            html <- P.writeHtml5 P.def document
-                            return ( html, getPandocMeta document )
 
 -- Misc. ----------------------------------------------------------------------
 
@@ -84,6 +77,7 @@ renderPost :: YabgSettings -> Post -> H.Html
 renderPost settings post = H.html $ do
     H.head $ do
         H.title ( H.toHtml $ title post )
+        H.script ! A.src ( H.stringValue $ unpack P.defaultMathJaxURL ) $ pure ()
         mapM_ ( \href -> H.link ! A.rel "stylesheet" ! A.href ( H.stringValue href ) )
               ( defLinks settings )
     H.body $ do
@@ -93,15 +87,39 @@ renderPost settings post = H.html $ do
                 postHeader post
                 content post
 
+-- Navigation -----------------------------------------------------------------
+
+
+
 -- Pipelinining ---------------------------------------------------------------
+
+yabgWriterOptions :: P.WriterOptions
+yabgWriterOptions = P.def{ P.writerHTMLMathMethod = P.MathJax P.defaultMathJaxURL }
+
+yabgReaderOptions :: P.ReaderOptions
+yabgReaderOptions = P.def{ P.readerExtensions = P.pandocExtensions }
+
+readPost :: FilePath -> IO P.Pandoc
+readPost filePath = do content <- pack <$> readFile filePath
+                       P.runIOorExplode $ P.readMarkdown yabgReaderOptions content
+
+documentToPost :: P.Pandoc -> IO Post
+documentToPost document = P.runIOorExplode $ do
+                                html <- P.writeHtml5 yabgWriterOptions document
+                                return $ post ( getPandocMeta document ) html
+
+writePost :: YabgSettings -> FilePath -> Post -> IO ()
+writePost settings path post = do
+    let renderedHtml = renderPost settings post
+    createDirectoryIfMissing True $ takeDirectory path
+    writeFile path ( renderHtml renderedHtml )
 
 postPipeline :: YabgSettings -> FilePath -> IO ()
 postPipeline settings filePath =
-    do ( html, meta ) <- readPost ( srcPath settings </> filePath )
-       let renderedHtml = renderPost settings ( post meta html )
-           outPath = changeExt "html" $ dstPath settings </> filePath
-       createDirectoryIfMissing True $ takeDirectory outPath
-       writeFile outPath ( renderHtml renderedHtml )
+    do document <- readPost ( srcPath settings </> filePath )
+       post <- documentToPost document
+       let outPath = changeExt "html" $ dstPath settings </> filePath
+       writePost settings outPath post
 
 postDirectory :: YabgSettings -> IO ()
 postDirectory settings =
@@ -120,7 +138,7 @@ yabgCopyDirs settings = forM_ ( dirsToCopy settings ) $ \ dir -> do
 yabgPipeline :: YabgSettings -> IO ()
 yabgPipeline settings = do
     yabgCopyDirs settings
-    postDirectory settings{ srcPath = "tst/posts", dstPath = "bin/posts" }
+    postDirectory settings{ srcPath = "tst/pages", dstPath = "bin" }
 
 main :: IO ()
 main = do print "yabg"
