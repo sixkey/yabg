@@ -33,7 +33,8 @@ data Post = Post { title :: String
 data YabgSettings = YabgSettings { srcPath :: FilePath
                                  , dstPath :: FilePath
                                  , dirsToCopy :: [ FilePath ]
-                                 , defLinks :: [ String ] }
+                                 , defLinks :: [ String ]
+                                 , nav :: [ ( String, String ) ] }
 
 -- Misc. IO -------------------------------------------------------------------
 
@@ -73,6 +74,11 @@ postHeader post = postTitle ( title post )
 sideBar :: Post -> H.Html
 sideBar post = H.img ! A.src ( H.stringValue $ image post ) ! A.id "title-image"
 
+renderNavigation :: [ ( String, String ) ] -> H.Html
+renderNavigation links = H.ul ! A.id "nav" $
+    forM_ links $ \ ( text, url ) ->
+        H.li $ H.a ! A.href ( H.stringValue url ) $ H.toHtml text
+
 renderPost :: YabgSettings -> Post -> H.Html
 renderPost settings post = H.html $ do
     H.head $ do
@@ -84,11 +90,10 @@ renderPost settings post = H.html $ do
         H.div ! A.id "root" $ do
             H.div ! A.id "left-wing" $ sideBar post
             H.div ! A.id "main-body" $ do
-                postHeader post
+                H.div ! A.id "title-nav" $ do
+                    postHeader post
+                    renderNavigation ( nav settings )
                 content post
-
--- Navigation -----------------------------------------------------------------
-
 
 
 -- Pipelinining ---------------------------------------------------------------
@@ -145,4 +150,7 @@ main = do print "yabg"
           yabgPipeline $ YabgSettings { srcPath = "tst"
                                       , dstPath = "bin"
                                       , dirsToCopy = [ "tst/public" ]
-                                      , defLinks = [ "/public/index.css" ] }
+                                      , defLinks = [ "/public/index.css" ]
+                                      , nav = [ ( "home", "/" )
+                                              , ( "blog", "/blog" )
+                                              ] }
