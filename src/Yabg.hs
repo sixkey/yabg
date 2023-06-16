@@ -1,5 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
+module Yabg where 
+
 import System.FilePath.Find ( find, always, extension, (==?) )
 import System.FilePath ( (</>), makeRelative, takeDirectory, (<.>), dropExtension )
 import System.Directory
@@ -19,10 +21,10 @@ import Text.Blaze.Html5 ( (!) )
 import qualified Text.Blaze.Html5.Attributes as A
 import Text.Pandoc ( readMarkdown )
 import Control.Monad.Except ( ExceptT )
-import Path ( mkRelDir )
-import Path.Like ( toPath )
 import qualified Text.Pandoc.Walk as P
 import Debug.Trace (traceShowId)
+
+import Options.Applicative
 
 -- Data -----------------------------------------------------------------------
 
@@ -144,13 +146,3 @@ yabgPipeline :: YabgSettings -> IO ()
 yabgPipeline settings = do
     yabgCopyDirs settings
     postDirectory settings{ srcPath = "tst/pages", dstPath = "bin" }
-
-main :: IO ()
-main = do print "yabg"
-          yabgPipeline $ YabgSettings { srcPath = "tst"
-                                      , dstPath = "bin"
-                                      , dirsToCopy = [ "tst/public" ]
-                                      , defLinks = [ "/public/index.css" ]
-                                      , nav = [ ( "home", "/" )
-                                              , ( "blog", "/blog" )
-                                              ] }
