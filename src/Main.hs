@@ -2,16 +2,13 @@
 
 module Main where
 
-import Data.Foldable ( foldlM )
 import Data.Maybe
 import Data.Bifunctor ( first, second )
 
 import Control.Monad
 import Control.Monad.Trans ( lift )
-import Control.Monad.Except ( ExceptT )
 import Control.Monad.Writer ( WriterT (runWriterT) )
-import Control.Monad.State ( StateT )
-import Control.Monad.RWS ( RWST, MonadWriter (tell), runRWST, get, put, tell, modify )
+import Control.Monad.RWS ( RWST, MonadWriter (tell), runRWST, get, tell, modify )
 
 import System.FilePath.Find ( find, always, extension, (==?) )
 import System.FilePath ( (</>), makeRelative, takeDirectory, (<.>), dropExtension )
@@ -23,19 +20,14 @@ import Debug.Trace ( traceShowId )
 import qualified Data.Text as DT ( lines, unlines, drop )
 import Data.Text ( pack, unpack, Text, isPrefixOf, split )
 
-import Text.Pandoc ( readMarkdown )
 import qualified Text.Pandoc as P
-import qualified Text.Pandoc.Definition
 import Text.Pandoc.Shared ( trim )
-import qualified Text.Pandoc.Walk as W
 import Text.Pandoc.Writers.Shared ( lookupMetaString )
 
 import Text.Blaze.Html.Renderer.String ( renderHtml )
 import qualified Text.Blaze.Html5 as H
 import Text.Blaze.Html5 ( (!) )
 import qualified Text.Blaze.Html5.Attributes as A
-
-import Options.Applicative
 
 -- Data -----------------------------------------------------------------------
 
@@ -171,7 +163,7 @@ documentToPost ( Yabgdoc meta blocks ) = do
         return $ post meta html
     where
         go :: YabgBlock -> WriterT H.Html IO ()
-        go ( InlineDir [ "spool-library" ] ) = tell $ H.p "spool library"
+        go ( InlineDir [ "image-library", dir ] ) = tell $ H.p "spool library"
         go ( InlineDir x ) = undefined
         go ( PDoc document ) =
             do html <- lift . P.runIOorExplode $
@@ -202,7 +194,6 @@ translatePath srcDir dstDir path = dstDir </> makeRelative srcDir path
 
 yabgCopyDirs :: YabgSettings -> IO ()
 yabgCopyDirs settings = forM_ ( dirsToCopy settings ) $ \ dir -> do
-    print dir
     copyDir dir ( translatePath ( srcPath settings ) ( dstPath settings ) dir )
 
 yabgPipeline :: YabgSettings -> IO ()
