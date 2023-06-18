@@ -13,7 +13,7 @@ import Control.Monad.Reader ( ReaderT (runReaderT), MonadReader, local, ask, ask
 import Control.Monad.RWS ( RWST, MonadWriter ( tell ), runRWST, get, tell, modify )
 
 import System.FilePath.Find ( find, always, extension, (==?) )
-import System.FilePath ( (</>), makeRelative, takeDirectory, (<.>), dropExtension )
+import System.FilePath ( (</>), makeRelative, takeDirectory, (<.>), dropExtension, dropExtensions )
 import System.Directory
 import System.Directory.PathWalk
 
@@ -26,6 +26,8 @@ import qualified Text.Pandoc as P
 import Text.Pandoc.Shared ( trim )
 import Text.Pandoc.Writers.Shared ( lookupMetaString )
 
+import Text.Regex.TDFA
+
 import Text.Blaze.Html.Renderer.String ( renderHtml )
 import qualified Text.Blaze.Html5 as H
 import Text.Blaze.Html5 ( (!) )
@@ -35,7 +37,7 @@ import qualified Text.Blaze.Html5.Attributes as A
 
 data PostMeta = PostMeta { title :: String
                          , desc :: String
-                         , image :: String
+                         , image :: Maybe String
                          , postPath :: String } deriving Show
 
 data Post = Post { meta :: PostMeta
@@ -96,14 +98,24 @@ post meta content = Post { meta = meta
 
 -- Rendering ------------------------------------------------------------------
 
+comment :: H.Html -> H.Html
+comment = H.em ! A.class_ "comment"
+
 postTitle :: String -> H.Html
 postTitle = H.h1 . H.toHtml
 
 postHeader :: Post -> H.Html
 postHeader = postTitle . title . meta
 
-sideBar :: Post -> H.Html
-sideBar post = H.img ! A.src ( H.stringValue . image . meta $ post ) ! A.id "title-image"
+imagePath :: PostMeta -> Maybe String
+imagePath meta = do path <- image meta
+                    return $ "/" ++ path
+
+sideBar :: Post -> Maybe H.Html
+sideBar post = do
+    imgPath <- imagePath ( meta post )
+    return $ H.img ! ( A.src . H.stringValue $ imgPath )
+                   ! A.id "title-image"
 
 renderNavigation :: [ ( String, String ) ] -> H.Html
 renderNavigation links = H.ul ! A.id "nav" $
@@ -111,11 +123,25 @@ renderNavigation links = H.ul ! A.id "nav" $
         H.li $ H.a ! A.href ( H.stringValue url ) $ H.toHtml text
 
 imageLibrary :: [ PostMeta ] -> H.Html
-imageLibrary [] = H.p $ "this library is empty"
+imageLibrary [] = comment "this library is empty"
 imageLibrary posts = H.div ! A.class_ "image-lib" $ mapM_ imagePost posts
   where
+    garImagePath :: PostMeta -> String
+    garImagePath meta = fromMaybe "/public/square.png" $ imagePath meta
+    postUrl :: PostMeta -> String
+    postUrl pMeta = changeExt "html" $ "/" ++ postPath pMeta
     imagePost :: PostMeta -> H.Html
-    imagePost post = H.p $ H.toHtml $ title post
+    imagePost post = H.a ! A.href ( H.stringValue $ postUrl post )
+                         ! A.class_ "image-lib-tile" $ do
+        H.img ! A.src ( H.stringValue ( garImagePath post ) )
+              ! A.class_ "image-lib-tile-bg"
+        H.p ! A.class_ "image-lib-tile-fg"
+            $ H.toHtml $ title post
+
+
+maybeElement :: Maybe H.Html -> H.Html
+maybeElement ( Just x ) = x
+maybeElement Nothing = pure ()
 
 renderPost :: YabgSettings -> Post -> H.Html
 renderPost settings post = H.html $ do
@@ -126,7 +152,8 @@ renderPost settings post = H.html $ do
               ( defLinks settings )
     H.body $ do
         H.div ! A.id "root" $ do
-            H.div ! A.id "left-wing" $ sideBar post
+            H.div ! A.id "left-wing" $
+                maybeElement $ sideBar post
             H.div ! A.id "main-body" $ do
                 H.div ! A.id "title-nav" $ do
                     postHeader post
@@ -189,7 +216,10 @@ documentToPost ( YabgDoc meta blocks ) = do
         go :: YabgBlock -> WriterT H.Html YabgMonad ()
         go ( InlineDir [ "image-library", dir ] ) = do
             psts <- asks posts
-            tell ( imageLibrary psts )
+            let relevantPosts = filter ( relevantPost dir ) psts
+            tell ( imageLibrary relevantPosts )
+          where
+            relevantPost regex post = postPath post =~ regex
 
         go ( InlineDir x ) = error ( "undefined yabg command: " ++ show x )
         go ( PDoc document ) =
@@ -225,9 +255,12 @@ readPostMeta basePath path = do
       fromPandocMeta :: P.Meta -> PostMeta
       fromPandocMeta pMeta = PostMeta { title = metaGet "title"
                                       , desc = metaGet "description"
-                                      , image = metaGet "image"
+                                      , image = maybyfy $ metaGet "image"
                                       , postPath = makeRelative basePath path }
-          where metaGet s = unpack $ lookupMetaString s pMeta
+          where
+              metaGet s = unpack $ lookupMetaString s pMeta
+              maybyfy [] = Nothing
+              maybyfy x = Just x
 
 
 yabgCopyDirs :: YabgMonad ()
