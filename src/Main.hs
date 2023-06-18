@@ -26,7 +26,7 @@ import qualified Text.Pandoc as P
 import Text.Pandoc.Shared ( trim )
 import Text.Pandoc.Writers.Shared ( lookupMetaString )
 
-import Text.Regex.TDFA
+import Text.Regex.PCRE
 
 import Text.Blaze.Html.Renderer.String ( renderHtml )
 import qualified Text.Blaze.Html5 as H
@@ -122,6 +122,15 @@ renderNavigation links = H.ul ! A.id "nav" $
     forM_ links $ \ ( text, url ) ->
         H.li $ H.a ! A.href ( H.stringValue url ) $ H.toHtml text
 
+listLibrary :: [ PostMeta ] -> H.Html
+listLibrary [] = comment "this library is empty"
+listLibrary posts = H.div ! A.class_ "list-lib" $ mapM_ listPost posts
+  where
+    listPost :: PostMeta -> H.Html
+    listPost post = H.div ! A.class_ "list-lib-tile" $ do
+        H.p ! A.class_ "tile-title" $ H.toHtml ( title post )
+        H.p ! A.class_ "tile-desc" $ H.toHtml ( desc post )
+
 imageLibrary :: [ PostMeta ] -> H.Html
 imageLibrary [] = comment "this library is empty"
 imageLibrary posts = H.div ! A.class_ "image-lib" $ mapM_ imagePost posts
@@ -213,15 +222,37 @@ documentToPost ( YabgDoc meta blocks ) = do
         ( _, html ) <- runWriterT $ forM_ blocks $ go
         return $ post meta html
     where
-        go :: YabgBlock -> WriterT H.Html YabgMonad ()
-        go ( InlineDir [ "image-library", dir ] ) = do
-            psts <- asks posts
-            let relevantPosts = filter ( relevantPost dir ) psts
-            tell ( imageLibrary relevantPosts )
-          where
-            relevantPost regex post = postPath post =~ regex
 
-        go ( InlineDir x ) = error ( "undefined yabg command: " ++ show x )
+
+        filterAtom :: String -> String -> PostMeta -> Bool
+        filterAtom "title" p post = title post =~ p
+        filterAtom "path" p post = postPath post =~ p
+        filterAtom t p _ = error $ "undefined yabg filter: '"
+                                   ++ show t ++ " "
+                                   ++ show p ++ "'"
+        buildFilter :: [ String ] -> PostMeta -> Bool
+        buildFilter [] pst = True
+        buildFilter ( "not" : t : p : rest ) pst =
+            not ( filterAtom t p pst ) && buildFilter rest pst
+        buildFilter ( t : p : rest ) pst =
+            filterAtom t p pst && buildFilter rest pst
+
+        buildFilter x _ = error $ "undefined yabg filter: " ++ show x
+        postList :: String
+                 -> ( [ PostMeta ] -> H.Html )
+                 -> [ String ]
+                 -> WriterT H.Html YabgMonad ()
+        postList listTitle listFun fltr = do
+            psts <- asks posts
+            let relevantPosts = filter ( buildFilter fltr ) psts
+            tell ( H.h3 ! A.class_ "lib-title" $ H.toHtml listTitle )
+            tell ( listFun relevantPosts )
+
+        go ( InlineDir ( "image-library" : title : rest ) ) =
+            postList title imageLibrary rest
+        go ( InlineDir ( "list-library" : title : rest ) ) =
+            postList title listLibrary rest
+        go ( InlineDir x ) = error $ "undefined yabg command: " ++ show x
         go ( PDoc document ) =
             do html <- liftIO $ P.runIOorExplode $
                  P.writeHtml5 yabgWriterOptions document
@@ -254,7 +285,7 @@ readPostMeta basePath path = do
    where
       fromPandocMeta :: P.Meta -> PostMeta
       fromPandocMeta pMeta = PostMeta { title = metaGet "title"
-                                      , desc = metaGet "description"
+                                      , desc = metaGet "desc"
                                       , image = maybyfy $ metaGet "image"
                                       , postPath = makeRelative basePath path }
           where
@@ -274,7 +305,7 @@ postDirectory =
        postNames <- liftIO $ find always ( extension ==? ".pst" ) src
        postMetas <- forM postNames ( readPostMeta src )
        local ( \x -> x{ posts = postMetas } ) $
-           forM_ postMetas $ postPipeline
+           forM_ postMetas postPipeline
 
 yabgPipeline :: YabgMonad ()
 yabgPipeline = do
@@ -294,4 +325,5 @@ main = do print "yabg"
                                     , nav = [ ( "xkucerak", "/" )
                                             , ( "blog", "/blog" )
                                             , ( "js-snippets", "/js-snippets" )
+                                            , ( "projects", "/projects" )
                                             ] } []
