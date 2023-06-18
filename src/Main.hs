@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 module Main where
 
@@ -6,9 +7,10 @@ import Data.Maybe
 import Data.Bifunctor ( first, second )
 
 import Control.Monad
-import Control.Monad.Trans ( lift )
-import Control.Monad.Writer ( WriterT (runWriterT) )
-import Control.Monad.RWS ( RWST, MonadWriter (tell), runRWST, get, tell, modify )
+import Control.Monad.Trans ( lift, liftIO, MonadIO )
+import Control.Monad.Writer ( WriterT ( runWriterT ) )
+import Control.Monad.Reader ( ReaderT (runReaderT), MonadReader, local, ask, asks )
+import Control.Monad.RWS ( RWST, MonadWriter ( tell ), runRWST, get, tell, modify )
 
 import System.FilePath.Find ( find, always, extension, (==?) )
 import System.FilePath ( (</>), makeRelative, takeDirectory, (<.>), dropExtension )
@@ -31,8 +33,12 @@ import qualified Text.Blaze.Html5.Attributes as A
 
 -- Data -----------------------------------------------------------------------
 
-data Post = Post { title :: String
-                 , image :: FilePath
+data PostMeta = PostMeta { title :: String
+                         , desc :: String
+                         , image :: String
+                         , postPath :: String } deriving Show
+
+data Post = Post { meta :: PostMeta
                  , content :: H.Html }
 
 data YabgSettings = YabgSettings { srcPath :: FilePath
@@ -41,10 +47,34 @@ data YabgSettings = YabgSettings { srcPath :: FilePath
                                  , defLinks :: [ String ]
                                  , nav :: [ ( String, String ) ] }
 
+data YabgBlock = PDoc P.Pandoc
+               | InlineDir [ String ] deriving Show
+
+data YabgDoc = YabgDoc PostMeta [ YabgBlock ] deriving Show
+
+
+data YabgContext = YabgContext { settings :: YabgSettings
+                               , posts :: [ PostMeta ] }
+
+newtype YabgContextT m a = YabgContextT { runContextT :: ReaderT YabgContext m a }
+    deriving ( Functor, Applicative, Monad, MonadReader YabgContext, MonadIO )
+
+type YabgMonadT = YabgContextT
+type YabgMonad = YabgMonadT IO
+
+runYabgMonad :: YabgMonad a -> YabgSettings -> [ PostMeta ] -> IO a
+runYabgMonad mon stngs psts = runReaderT ( runContextT mon )
+                                         ( YabgContext { settings = stngs
+                                                       , posts = psts } )
+
+
 -- Misc. IO -------------------------------------------------------------------
 
 changeExt :: String -> FilePath -> FilePath
 changeExt ext filepath = dropExtension filepath <.> ext
+
+translatePath :: FilePath -> FilePath -> FilePath -> FilePath
+translatePath srcDir dstDir path = dstDir </> makeRelative srcDir path
 
 copyDir :: FilePath -> FilePath -> IO ()
 copyDir srcDir dstDir = pathWalk srcDir $ \ dir subdirs files ->
@@ -60,13 +90,9 @@ copyDir srcDir dstDir = pathWalk srcDir $ \ dir subdirs files ->
 getPandocMeta :: P.Pandoc -> P.Meta
 getPandocMeta ( P.Pandoc meta blocks ) = meta;
 
-post :: P.Meta -> H.Html -> Post
-post meta content =
-    let title = lookupMetaString "title" meta
-        image = lookupMetaString "image" meta
-     in Post { title = unpack title
-             , image = unpack image
-             , content = content }
+post :: PostMeta -> H.Html -> Post
+post meta content = Post { meta = meta
+                         , content = content }
 
 -- Rendering ------------------------------------------------------------------
 
@@ -74,20 +100,27 @@ postTitle :: String -> H.Html
 postTitle = H.h1 . H.toHtml
 
 postHeader :: Post -> H.Html
-postHeader post = postTitle ( title post )
+postHeader = postTitle . title . meta
 
 sideBar :: Post -> H.Html
-sideBar post = H.img ! A.src ( H.stringValue $ image post ) ! A.id "title-image"
+sideBar post = H.img ! A.src ( H.stringValue . image . meta $ post ) ! A.id "title-image"
 
 renderNavigation :: [ ( String, String ) ] -> H.Html
 renderNavigation links = H.ul ! A.id "nav" $
     forM_ links $ \ ( text, url ) ->
         H.li $ H.a ! A.href ( H.stringValue url ) $ H.toHtml text
 
+imageLibrary :: [ PostMeta ] -> H.Html
+imageLibrary [] = H.p $ "this library is empty"
+imageLibrary posts = H.div ! A.class_ "image-lib" $ mapM_ imagePost posts
+  where
+    imagePost :: PostMeta -> H.Html
+    imagePost post = H.p $ H.toHtml $ title post
+
 renderPost :: YabgSettings -> Post -> H.Html
 renderPost settings post = H.html $ do
     H.head $ do
-        H.title ( H.toHtml $ title post )
+        H.title ( H.toHtml . title . meta $ post )
         H.script ! A.src ( H.stringValue $ unpack P.defaultMathJaxURL ) $ pure ()
         mapM_ ( \href -> H.link ! A.rel "stylesheet" ! A.href ( H.stringValue href ) )
               ( defLinks settings )
@@ -108,106 +141,124 @@ yabgWriterOptions = P.def{ P.writerHTMLMathMethod = P.MathJax P.defaultMathJaxUR
 yabgReaderOptions :: P.ReaderOptions
 yabgReaderOptions = P.def{ P.readerExtensions = P.pandocExtensions }
 
-data YabgBlock = PDoc P.Pandoc
-               | InlineDir [ String ] deriving Show
+type ReadPostMonad = RWST () [ YabgBlock ] [ Text ] YabgMonad
 
-data Yabgdoc = Yabgdoc P.Meta [ YabgBlock ] deriving Show
-
-type ReadPostMonad a = RWST () [ YabgBlock ] ( [ Text ], Maybe P.Meta ) IO a
-
-parseMarkdown :: Text -> IO P.Pandoc
-parseMarkdown text = do
-    print text
+parseMarkdown :: Text -> YabgMonad P.Pandoc
+parseMarkdown text = liftIO $ do
     P.runIOorExplode $ P.readMarkdown yabgReaderOptions text
 
-readPost :: FilePath -> IO Yabgdoc
-readPost filePath = do
-    text <- readFile filePath
-    print text
+postSrc :: PostMeta -> YabgMonad FilePath
+postSrc postMeta = asks ( ( </> postPath postMeta ) . srcPath . settings )
+
+readPost :: PostMeta -> YabgMonad YabgDoc
+readPost postMeta = do
+    pstSrc <- postSrc postMeta
+    text <- liftIO $ readFile pstSrc
     goText ( pack text )
     where
         flushLines :: ReadPostMonad ()
         flushLines = do
-            lns <- fst <$> get
+            lns <- get
             unless ( null lns ) $ do
                 doc <- lift $ parseMarkdown ( DT.unlines . reverse $ lns )
-                oldMeta <- snd <$> get
-                when ( isNothing oldMeta ) $ do
-                    let meta = getPandocMeta doc
-                    modify $ second ( const $ Just meta )
-                modify $ first $ const []
+                modify $ const []
                 tell . pure $ PDoc doc
-        goText :: Text -> IO Yabgdoc
+        goText :: Text -> YabgMonad YabgDoc
         goText text = do
-            ( _, ( _, meta ), blocks ) <- ( \x -> runRWST x () ( [], Nothing ) ) $ do
+            ( _, _, blocks ) <- ( \x -> runRWST x () [] ) $ do
                 mapM_ go ( DT.lines text )
-                lns <- fst <$> get
+                lns <- get
                 flushLines
-            case meta of
-                Just metaContent -> return $ Yabgdoc metaContent blocks
-                Nothing -> ioError $ userError "meta not defined"
+            return $ YabgDoc postMeta blocks
         go :: Text -> ReadPostMonad ()
         go line =
             if "%%%" `isPrefixOf` line then do
                let cmnd = map unpack $ split ( == ' ' )
                                                 ( trim . DT.drop 3 $ line )
                flushLines
-               tell $ pure $ traceShowId ( InlineDir cmnd )
+               tell $ pure $ InlineDir cmnd
                return ()
             else do
-               modify $ first ( line : )
+               modify ( line : )
 
-documentToPost :: Yabgdoc -> IO Post
-documentToPost ( Yabgdoc meta blocks ) = do
+documentToPost :: YabgDoc -> YabgMonad Post
+documentToPost ( YabgDoc meta blocks ) = do
         ( _, html ) <- runWriterT $ forM_ blocks $ go
         return $ post meta html
     where
-        go :: YabgBlock -> WriterT H.Html IO ()
-        go ( InlineDir [ "image-library", dir ] ) = tell $ H.p "spool library"
-        go ( InlineDir x ) = undefined
+        go :: YabgBlock -> WriterT H.Html YabgMonad ()
+        go ( InlineDir [ "image-library", dir ] ) = do
+            psts <- asks posts
+            tell ( imageLibrary psts )
+
+        go ( InlineDir x ) = error ( "undefined yabg command: " ++ show x )
         go ( PDoc document ) =
-            do html <- lift . P.runIOorExplode $
+            do html <- liftIO $ P.runIOorExplode $
                  P.writeHtml5 yabgWriterOptions document
                tell html
 
-writePost :: YabgSettings -> FilePath -> Post -> IO ()
-writePost settings path pst = do
-    let renderedHtml = renderPost settings pst
-    createDirectoryIfMissing True $ takeDirectory path
-    writeFile path ( renderHtml renderedHtml )
+writePost :: FilePath -> Post -> YabgMonad ()
+writePost path pst = do
+    stngs <- asks settings
+    let renderedHtml = renderPost stngs pst
+    liftIO $ do
+        createDirectoryIfMissing True $ takeDirectory path
+        writeFile path ( renderHtml renderedHtml )
 
-postPipeline :: YabgSettings -> FilePath -> IO ()
-postPipeline settings filePath = do
-    document <- readPost ( srcPath settings </> filePath )
+postPipeline :: PostMeta -> YabgMonad ()
+postPipeline postMeta = do
+    liftIO . print $ postPath postMeta
+    stngs <- asks settings
+    document <- readPost postMeta
     pst <- documentToPost document
-    let outPath = changeExt "html" $ dstPath settings </> filePath
-    writePost settings outPath pst
+    let outPath = changeExt "html" $ dstPath stngs </> postPath postMeta
+    writePost outPath pst
 
-postDirectory :: YabgSettings -> IO ()
-postDirectory settings =
-    do let src = srcPath settings
-       files <- find always ( extension ==? ".pst" ) src
-       forM_ files $ postPipeline settings . makeRelative src
+-- This is just awful
+readPostMeta :: FilePath -> FilePath -> YabgMonad PostMeta
+readPostMeta basePath path = do
+    content <- liftIO $ pack <$> readFile path
+    meta <- liftIO $ P.runIOorExplode
+        ( getPandocMeta <$> P.readMarkdown yabgReaderOptions content )
+    return $ fromPandocMeta meta
+   where
+      fromPandocMeta :: P.Meta -> PostMeta
+      fromPandocMeta pMeta = PostMeta { title = metaGet "title"
+                                      , desc = metaGet "description"
+                                      , image = metaGet "image"
+                                      , postPath = makeRelative basePath path }
+          where metaGet s = unpack $ lookupMetaString s pMeta
 
-translatePath :: FilePath -> FilePath -> FilePath -> FilePath
-translatePath srcDir dstDir path = dstDir </> makeRelative srcDir path
 
-yabgCopyDirs :: YabgSettings -> IO ()
-yabgCopyDirs settings = forM_ ( dirsToCopy settings ) $ \ dir -> do
-    copyDir dir ( translatePath ( srcPath settings ) ( dstPath settings ) dir )
+yabgCopyDirs :: YabgMonad ()
+yabgCopyDirs = do stngs <- asks settings
+                  liftIO $ forM_ ( dirsToCopy stngs ) $ \ dir -> do
+                    copyDir dir ( translatePath ( srcPath stngs ) ( dstPath stngs ) dir )
 
-yabgPipeline :: YabgSettings -> IO ()
-yabgPipeline settings = do
-    yabgCopyDirs settings
-    postDirectory settings{ srcPath = srcPath settings </> "pages", dstPath = "bin" }
+postDirectory :: YabgMonad ()
+postDirectory =
+    do src <- asks ( srcPath . settings )
+       postNames <- liftIO $ find always ( extension ==? ".pst" ) src
+       postMetas <- forM postNames ( readPostMeta src )
+       local ( \x -> x{ posts = postMetas } ) $
+           forM_ postMetas $ postPipeline
+
+yabgPipeline :: YabgMonad ()
+yabgPipeline = do
+    yabgCopyDirs
+    local ( \c -> let s = settings c
+                   in c{ settings = s{ srcPath = srcPath s </> "pages"
+                                     , dstPath = "bin" } } )
+          postDirectory
 
 main :: IO ()
 main = do print "yabg"
-          yabgPipeline $ YabgSettings { srcPath = "xlogin"
-                                      , dstPath = "bin"
-                                      , dirsToCopy = [ "xlogin/public" ]
-                                      , defLinks = [ "/public/index.css" ]
-                                      , nav = [ ( "xkucerak", "/" )
-                                              , ( "blog", "/blog" )
-                                              , ( "js-snippets", "/js-snippets" )
-                                              ] }
+          runYabgMonad yabgPipeline
+                       YabgSettings { srcPath = "xlogin"
+                                    , dstPath = "bin"
+                                    , dirsToCopy = [ "xlogin/public" ]
+                                    , defLinks = [ "/public/index.css" ]
+                                    , nav = [ ( "xkucerak", "/" )
+                                            , ( "blog", "/blog" )
+                                            , ( "js-snippets", "/js-snippets" )
+                                            ] } []
