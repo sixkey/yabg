@@ -1,0 +1,96 @@
+---
+preset: kocicky
+header-includes:
+  - \usepackage[a4paper]{geometry}
+  - \newcommand{\Hom}{\mathit{Hom}}
+  - \newcommand{\id}{\mathit{id}}
+lang: cs
+---
+
+## Seminár 9: Koalgebry, koindukce, bisimulace atd.
+
+Uvažujeme endofuktory $F : \mathcal C \to \mathcal C$.
+
+$F$-algebra je objekt $A$ společně se šipkou $\alpha : FA \to A$.
+$F$-algebry tvoří kategorii; homomorfismus $F$-algeber
+$(A,\alpha) \to (B,\beta)$ je šipka $f: A \to B$
+taková, že $f \circ \alpha = \beta \circ Ff$.
+
+Iniciální $F$-algebra je nejmenším pevným bodem funktoru $F$.
+Šipce z iniciální $F$-algebry do $F$-algebry $(A, \alpha)$ říkáme
+*katamorfismus* a značíme ho $(\!\lvert \alpha \rvert\!)$.
+
+```Haskell
+type Algebra f a = f a -> a
+data Fix f = Fix { unFix :: f (Fix f) }
+cata :: Functor f => Algebra f a -> Fix f -> a
+cata alpha = alpha . fmap (cata alpha) . unFix
+```
+
+Duálně: $F$-koalgebra je objekt $A$ společně se šipkou $\alpha : A \to FA$.
+Homomorfismus $f : (A, \alpha) \to (B, \beta)$ splňuje
+$\beta \circ f = Ff \circ \alpha$.
+
+Finální $F$-koalgebra je největším pevným bodem funktoru $F$.
+Šipce z $F$-koalgebry $(A, \alpha)$ do finální $F$-algebry říkáme
+*anamorfismus* a značíme ho $[\!( \alpha )\!]$.
+
+```Haskell
+type CoAlgebra f a = a -> f a
+-- Fix f je tentýž, protože funktory v Haskellu mají jen jeden pevný bod
+ana :: Functor f => CoAlgebra f a -> a -> Fix f
+ana alpha = Fix . fmap (ana alpha) . alpha
+```
+
+*Příklady:*
+
+- $FX = 1 + X$. Iniciální $F$-algebra je $\mathbb N$. Finální $F$-koalgebra
+  je $\mathbb N \cup \{\infty\}$.
+- $FX = A \times X$. Terminální $F$-koalgebra je proud (stream).
+- $FX = \mathcal P(A \times X)$. $F$-koalgebry jsou přechodové systémy s
+  návěštími (LTS). Finální $F$-koalgebra neexistuje.
+
+**Indukce a koindukce:**
+
+Budeme se teď pohybovat v kategorii Set (nebo nějaké podobné, kde můžeme
+hovořit o prvcích, podmnožinách, relacích).
+
+*Princip indukce:* Iniciální $F$-algebra je minimální (nemá žádné vlastní
+podalgebry).
+
+Definice *kongruence* (nemusí to být ekvivalence):
+$F$-kongruence mezi $F$-algebrami $(A, \alpha)$ a $(B, \beta)$
+je $F$-algebra $(R, \rho)$, která má homomorfismy $\pi_1$ do $(A, \alpha)$
+a $\pi_2$ do $(B, \beta)$. Na $R$ se můžeme dívat jako na relaci
+$\{(\pi_1(r), \pi_2(r)) \mid r \in R\}$.
+
+Pokud $R$ je kongruence nad $X$, pak $\pi_1(R) \cap \pi_2(R)$ je podalgebra
+$X$.
+
+*Alternativní formulace principu indukce:* Každá kongruence nad iniciální
+$F$-algebrou je nadmnožinou identity.
+
+*Princip **koindukce**:* Finální $F$-koalgebra je jednoduchá (nemá žádný
+vlastní kvocient).
+
+Kvocient koalgebry $S$ je koalgebra $T$ taková, že existuje epimorfismus
+(v případě Set surjektivní zobrazení) $S \to T$.
+
+Definice *bisimulace*: $F$-bisimulace mezi $F$-koalgebrami $(A, \alpha)$
+a $(B, \beta)$ je $F$-koalgebra $(R, \rho)$, která má homomorfismy
+$\pi_1$ do $(A, \alpha)$ a $\pi_2$ do $(B, \beta)$. Na $R$ se můžeme dívat
+jako na relaci $\{(\pi_1(r), \pi_2(r)) \mid r \in R\}$.
+
+*Alternativní formulace principu koindukce:*
+Každá bisimulace nad finální $F$-koalgebrou je podmnožinou identity.
+
+*Příklad:* Vezměme si klasickou bisimulaci nad přechodovými systémy s návěštími
+(LTS). Tedy $R$ je bisimulace pokud pro každé $(x, y) \in R$ platí:
+
+* $x \xrightarrow{a} x' \implies \exists y' : y \xrightarrow{a} y'
+  \land (x', y') \in R$.
+* $y \xrightarrow{a} y' \implies \exists x' : x \xrightarrow{a} x'
+  \land (x', y') \in R$.
+
+Dokažte, že tento pojem bisimulace je shodný s pojmem $F$-bisimulace, kde
+$FX = \mathcal P(A \times X)$.

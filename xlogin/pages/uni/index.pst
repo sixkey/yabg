@@ -1,0 +1,25 @@
+---
+title: University stuff
+---
+
+Here is some university related stuff. 
+
+%%% list-library Teaching_Posts path uni not path index.pst not path kocicky$
+
+### Teaching
+
+IB015: Non-imperative Programming
+
+IB000: Mathematical Foundations of Computer Science
+
+### Taught
+
+IB111: Introduction to Programming
+
+PB071: Introduction to Lowlewel Programming
+
+PV248: Python Seminar
+
+### Seminars
+
+[Kocicky: Bootstrapped Category Theory for Computer Science.](/uni/kocicky)

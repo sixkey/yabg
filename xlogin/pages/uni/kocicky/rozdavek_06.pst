@@ -1,0 +1,135 @@
+---
+preset: kocicky
+geometry: margin=10mm
+output: pdf_document
+header-includes: |
+    \usepackage{tikz-cd}
+    \usepackage[T1]{fontenc}
+    \usepackage[utf8]{inputenc}
+    \usepackage{layout}
+    \usepackage{adjustbox}
+    \pagenumbering{gobble}
+    \usepackage[labelformat=empty]{caption}
+---
+
+## Seminář 6: Adjunkce
+
+### Unit/counit adjunkce
+
+Kategorie $\mathcal{C}, \mathcal{D}$, Funktory $L:\mathcal{D} \to \mathcal{C}$, $R:\mathcal{C} \to \mathcal{D}$
+\begin{itemize}
+    \setlength\itemsep{0em}
+    \item $L$ je levý adjunkt $R$
+    \item $R$ je pravý adjunkt $L$
+\end{itemize}
+Značení: $L \dashv{} R$
+
+Pokud existují přirozené transformace:
+\begin{itemize}
+    \setlength\itemsep{0em}
+    \item $\eta:I_\mathcal{D} \Rightarrow R \circ L$(unit)
+    \item $\epsilon:L \circ R \Rightarrow I_\mathcal{C}$(counit).
+\end{itemize}
+\begin{center}
+    \begin{tikzcd}
+                              &  &                                                                                                                       & {} \arrow[ddd, no head] &                                                                                                  &  &                              \\
+Ld \arrow[rrd, "R"', maps to] &  & d \arrow[ll, "L"', maps to] \arrow[d, "\eta_d"] \arrow["I_\mathcal{D}"', maps to, loop, distance=2em, in=125, out=55] &                         & c \arrow[rr, "R", maps to] \arrow["I_\mathcal{C}"', maps to, loop, distance=2em, in=125, out=55] &  & Rc \arrow[lld, "L", maps to] \\
+                              &  & RLd                                                                                                                   &                         & LRc \arrow[u, "\epsilon_d"]                                                                      &  &                              \\
+                              &  &                                                                                                                       & {}                      &                                                                                                  &  &
+\end{tikzcd}
+\end{center}
+Pro tyto transformace platí následující rovnosti:
+\begin{itemize}
+    \setlength\itemsep{0em}
+    \item $L = L \circ I_\mathcal{D} \to L \circ R \circ L \to I_\mathcal{C} \circ L = L$
+    \item $R = I_\mathcal{D} \circ R \to R \circ L \circ R \to R \circ I_\mathcal{C} = R$
+\end{itemize}
+
+### Hom-Set adjunkce
+
+Kategorie $\mathcal{C}, \mathcal{D}$, Funktory $L:\mathcal{D} \to \mathcal{C}$, $R:\mathcal{C} \to \mathcal{D}$
+
+$L \dashv{} R \iff Hom_\mathcal{C}(Ld, c) \cong{} Hom_\mathcal{D}(d, Rc)$
+
+$\Phi$ je přirozený isomorfismus mezi HomSety
+
+\begin{center}
+\begin{tikzcd}
+Ld \arrow[dd, bend right] \arrow[dd] \arrow[dd, bend left] &  & d \arrow[ll, "L"', maps to] \arrow[dd, bend right] \arrow[dd] \arrow[dd, bend left] \\
+{} \arrow[rr, shift right=2]                               &  & {} \arrow[ll, "\Phi"', shift right=2]                                               \\
+c \arrow[rr, "R"', maps to]                                &  & Rc
+\end{tikzcd}
+\end{center}
+
+### Adjunkce unvierzální šipkou (Universal arrow adjunction)
+
+Kategorie $\mathcal{C}, \mathcal{D}$, Funktory $L:\mathcal{D} \to \mathcal{C}$, $R:\mathcal{C} \to \mathcal{D}$
+
+$L \dashv{} R \iff$ existuje přirozená transformace $\eta:I_\mathcal{D} \Rightarrow R \circ L$  taková, že $\forall c \in O_\mathcal{C}, \forall d\in O_\mathcal{D}$ a $\forall f: d \to Rc$ $\exists! g: Ld \to c$, že následující diagram  komutuje: 
+
+\begin{center}
+    \begin{tikzcd}
+d \arrow[rd, "f"'] \arrow[r, "\eta_d"] & RLd \arrow[d, "Rg"] 
+
+                                       & Rc
+\end{tikzcd}
+\end{center}
+
+### Ekvivalence definic
+
+HomSet $\to$ Unit/Counit:
+
+- $\eta_d:I_\mathcal{D}\Rightarrow R \circ L d = \Phi_{d, Ld}(I_\mathcal{D}(Ld))$
+- $\epsilon_c:L \circ R \Rightarrow I_\mathcal{C} = \Phi_{Rc, c}^{-1}(I_\mathcal{C}(Rc))$
+\medskip
+
+Universal arrow $\to$ HomSet:
+
+- $\Phi_{d,c}:Hom_\mathcal{C}(Ld, c) \to Hom_\mathcal{D}(d, Rc) = (\alpha:Ld \to c) \mapsto R\alpha \circ \eta$
+\medskip
+
+Unit/Counit $\to$ Universal arrow:
+
+- $R(\Delta) \circ \eta_c=f$
+- $\Delta = \epsilon_c \circ Lf= g$
+
+### Unikátnost adjunkcí (až na přirozený isomorfismus)
+
+Nechť $L,L': D \to c$ a $R: C \to D$ a $L \dashv{} R, L' \dashv{} R$ s přirozenými bijekcemi $\Phi_{d,c}$ a $\Phi_{d, c}'$. Pak pro libovolné $d \in O_\mathcal{D}$ platí, že:
+
+>> $Hom_\mathcal{C}(Ld,-) \cong{} Hom_\mathcal{D}(c, R-)\cong{} Hom_\mathcal{C}(L'd, -)$
+
+Z toho jde pomocí Yonneda embedding ukázat, že $F$ a $F'$ jsou přirozeně isomorfní.
+
+### Příklady
+
+#### Exponenciál CCC popsaný adjunkcí:
+
+- $L=z \to z \times a$
+- $R = b \to a \Rightarrow b$
+- Unit: $\eta = z \to a \Rightarrow z \times a$
+- Counit: $\epsilon = (a\Rightarrow b) \times a) \to b = eval$
+
+#### Free/Forgetful adjunkce
+Kategorie $\textbf{Mon}$ - objekty jsou monoidy, morfismy jsou homomorfismy mezi nimi. Mějme $X \in O_{\textbf{Set}}$ jako abecedu a $F(X)$ je monoid takový, že $F(X) = (X^*, ++, ())$. $X^*$ je množina slov složených z prvků $X$ - například: $w=(x1,x2,x3)$, $u=(x1)$, $z=()$. $++$ je operace zřetězení a $()$ je prázdné slovo. 
+
+Pak $F:\textbf{Set} \rightarrow \textbf{Mon}$ je takový funktor, který pro každou množinu vybere monoid jí generovaný. Mějme funktor $U:\textbf{Mon} \rightarrow \textbf{Set}$, který monoid namapuje na jeho množinu. $X$ je tedy generátor monoidu $F(X)$ a $U(F(X))$ namapuje $X$ na množinu generovanou $X$ a operací $++$.
+
+Nyní můžeme definovat přirozenou transformaci $\eta: Id_{\textbf{Set}} \Rightarrow U \circ F$ takovou, že $\eta_X(x) = (x)$.
+Nyní chceme ukázat, že pro libovolné f existuje právě jedno g takové, že následující daigram komutuje:
+
+\begin{center}
+\begin{tikzcd}
+X \arrow[rd, "f"'] \arrow[r, "\eta_X"] & U(F(X)) \arrow[d, "U(g)"] \\
+                                       & U(M)
+\end{tikzcd}
+\end{center}
+Tedy chceme najít morfismus $g$ takový, že je homomorfismus mezi monoidy a zároveň splňuje rovnost:
+$f(x)=U(g)(\eta_Xx) = U(g)((x))$.
+
+Takový morfismus $g$ je:
+
+- $g(()) = id_M$
+- $g((x)) = f(x)$
+- $g((x1,x2,…,x_n ))=f(x1)f(x2)…f(x_n)$
+

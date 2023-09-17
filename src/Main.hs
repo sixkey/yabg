@@ -45,7 +45,7 @@ data Post = Post { meta :: PostMeta
 
 data YabgSettings = YabgSettings { srcPath :: FilePath
                                  , dstPath :: FilePath
-                                 , dirsToCopy :: [ FilePath ]
+                                 , dirsToCopy :: [ ( FilePath, FilePath ) ]
                                  , defLinks :: [ String ]
                                  , nav :: [ ( String, String ) ] }
 
@@ -122,14 +122,18 @@ renderNavigation links = H.ul ! A.id "nav" $
     forM_ links $ \ ( text, url ) ->
         H.li $ H.a ! A.href ( H.stringValue url ) $ H.toHtml text
 
+postUrl :: PostMeta -> String
+postUrl pMeta = changeExt "html" $ "/" ++ postPath pMeta
+
 listLibrary :: [ PostMeta ] -> H.Html
 listLibrary [] = comment "this library is empty"
 listLibrary posts = H.div ! A.class_ "list-lib" $ mapM_ listPost posts
   where
     listPost :: PostMeta -> H.Html
-    listPost post = H.div ! A.class_ "list-lib-tile" $ do
-        H.p ! A.class_ "tile-title" $ H.toHtml ( title post )
-        H.p ! A.class_ "tile-desc" $ H.toHtml ( desc post )
+    listPost post = H.div ! A.class_ "list-lib-tile" $ 
+        H.a ! A.href ( H.stringValue ( postUrl post ) ) $ do 
+            H.p ! A.class_ "tile-title" $ H.toHtml ( title post )
+            H.p ! A.class_ "tile-desc" $ H.toHtml ( desc post )
 
 imageLibrary :: [ PostMeta ] -> H.Html
 imageLibrary [] = comment "this library is empty"
@@ -137,8 +141,6 @@ imageLibrary posts = H.div ! A.class_ "image-lib" $ mapM_ imagePost posts
   where
     garImagePath :: PostMeta -> String
     garImagePath meta = fromMaybe "/public/square.png" $ imagePath meta
-    postUrl :: PostMeta -> String
-    postUrl pMeta = changeExt "html" $ "/" ++ postPath pMeta
     imagePost :: PostMeta -> H.Html
     imagePost post = H.a ! A.href ( H.stringValue $ postUrl post )
                          ! A.class_ "image-lib-tile" $ do
@@ -217,6 +219,8 @@ readPost postMeta = do
             else do
                modify ( line : )
 
+strReplace og nw = map ( \e -> if e == og then nw else e )
+
 documentToPost :: YabgDoc -> YabgMonad Post
 documentToPost ( YabgDoc meta blocks ) = do
         ( _, html ) <- runWriterT $ forM_ blocks $ go
@@ -247,11 +251,12 @@ documentToPost ( YabgDoc meta blocks ) = do
             let relevantPosts = filter ( buildFilter fltr ) psts
             tell ( H.h3 ! A.class_ "lib-title" $ H.toHtml listTitle )
             tell ( listFun relevantPosts )
+        parseTitle = strReplace '_' ' '
 
         go ( InlineDir ( "image-library" : title : rest ) ) =
-            postList title imageLibrary rest
+            postList ( parseTitle title ) imageLibrary rest
         go ( InlineDir ( "list-library" : title : rest ) ) =
-            postList title listLibrary rest
+            postList ( parseTitle title ) listLibrary rest
         go ( InlineDir x ) = error $ "undefined yabg command: " ++ show x
         go ( PDoc document ) =
             do html <- liftIO $ P.runIOorExplode $
@@ -296,8 +301,8 @@ readPostMeta basePath path = do
 
 yabgCopyDirs :: YabgMonad ()
 yabgCopyDirs = do stngs <- asks settings
-                  liftIO $ forM_ ( dirsToCopy stngs ) $ \ dir -> do
-                    copyDir dir ( translatePath ( srcPath stngs ) ( dstPath stngs ) dir )
+                  liftIO $ forM_ ( dirsToCopy stngs ) $ \ ( ogDir, nwDir ) -> do
+                        copyDir ogDir ( dstPath stngs </> nwDir )
 
 postDirectory :: YabgMonad ()
 postDirectory =
@@ -320,10 +325,9 @@ main = do print "yabg"
           runYabgMonad yabgPipeline
                        YabgSettings { srcPath = "xlogin"
                                     , dstPath = "bin"
-                                    , dirsToCopy = [ "xlogin/public" ]
+                                    , dirsToCopy = [ ( "xlogin/public", "public" ) 
+                                                   , ( "xlogin/data", "" ) ]
                                     , defLinks = [ "/public/index.css" ]
                                     , nav = [ ( "xkucerak", "/" )
-                                            , ( "blog", "/blog" )
-                                            , ( "js-snippets", "/js-snippets" )
-                                            , ( "projects", "/projects" )
+                                            , ( "uni", "/uni" )
                                             ] } []

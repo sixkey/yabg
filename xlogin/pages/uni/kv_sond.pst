@@ -1,0 +1,31 @@
+---
+preset: algo
+title: O nepríjemnosti kvadratického sondovania. 
+image: public/index.png
+---
+
+V prípade, že v kvadratickom sondovaní použijem konštanty $c_1 = c_2 = 1$, kde uvažujem $mod\ 7$, tak dostanem 
+
+\begin{equation}
+\begin{aligned}
+h(x, i) = (h(x) + i + i^2) \mod 7
+\end{aligned}
+\end{equation}
+
+potom uvážme $x$ také, že $h(x) = 0$, potom 
+
+\begin{equation}
+\begin{aligned}
+h(x, i) &= (i + i^2) \mod 7\\
+h(x, 0) &= 0\\
+h(x, 1) &= 2\\
+h(x, 2) &= \boxed{6}\\
+h(x, 3) &= 5\\
+h(x, 4) &= \boxed{6}\\
+\end{aligned}
+\end{equation}
+
+A teda v obecnosti nemám garantované, že kvadratické sondovanie "obíde" celú tabuľku kým nájde jednu pozíciu dvakrát a to aj v prípade, že $n$ je prvočíslo a $c_2 \not \equiv 0 \mod n$ a $c_1 \not \equiv 0 \mod n$. 
+(V prípade, že $c_2 = c_1 = 1$ tak dokonca nefunguje pre žiadnu voľbu $n$).
+
+Konštanty, pre ktorú túto vlastnosť platí ale samozrejme existujú, napríklad v prípade $c_1 = 2, c_2 = 3, n = 6$. 

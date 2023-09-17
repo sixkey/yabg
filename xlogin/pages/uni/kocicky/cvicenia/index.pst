@@ -1,0 +1,70 @@
+---
+preset: kocicky
+---
+
+## 2. Funktory a prirodzené transformácie
+
+1. Majme C, grupu reálnych čísel so sčítaním a D, monoid kladných reálnych čísel s násobením. Skúste si C a D nakresliť v podobe kategórií. Následne skúste nájsť dva funktory F: C →D a G : D → C také, že sú vzájomne inverzné. [riešenie](ex_01.html)
+
+## 3. Produkty a koprodukty
+
+1. Vymyslete kandidáta na koprodukt Int a Bool jiný než Either a ukažte, že nemůže být lepší než Either, protože se dá najít víc než jeden morfizmus z vašeho kandidáta do Either.
+2. Ukažte, že následující datová struktura PreList je instancí bifunktoru. PreList je datová struktura odvozená od List, ve které byla rekurze nahrazena druhým typovým parametrem pro zjednodušení.
+3. \def\C{\mathcal{C}}
+Nechť $\C$ je kategorie a $c$ v ní libovolný objekt. Předpokládejme navíc, že pro libovolný další objekt $d$ existuje v $\C$ produkt $c\times d$. Tímto způsobem jsme vytvořili přiřazení, které každému objektu z $\C$ přiřadí nějaký objekt z $\C$. Vymyslete, jak toto zobrazení na objektech rozšířit na funktor. Najděte tedy způsob, jak pro každou šipku $f\colon d\to d'$ najít šipku $c\times f\colon c\times d\to c\times d'$. Navíc ukažte, že toto přiřazení je funktoriální (tedy že zachovává kompozice a identity).
+Nezapomeňte, že v obecné kategorii je produkt definován pouze svou univerzální vlastností (první diagram třetího rozdavku)!
+Když to člověk dělá poprvé, tak je to spíš těžší cvičení, ale myslím, že pro pochopení základních kategoriálnách konceptů a způsobu uvažování je superužitečné. *Vitek*
+
+## 4. Yoneda
+
+1. Mějme kategorii **Grp** (objekty := grupy, morfismy := homomorfismy) a
+zapomínající funktor $U: Grp \to Set$, který grupu $G$ pošle na svoji nosnou
+množinu. Popiště přirozené transformace mezi hom-funktorem $Grp(Z,-)$ a $U$. (Z
+jsou celá čísla se sčítáním)
+
+2. Mějme kategorii **Cat** (objekty := malé kategorie, morfismy := funktory). Mějme
+kategorie **1** (jediný objekt s id morfismem) a **2** (2 objekty a,b; morfismy id_a,
+id_b, a->b).
+Popiště přirozené transformace mezi $Cat(1,-)$ a $Cat(2,-)$.
+
+3. V části `Yoneda in haskell` jsme si řekli, že `Reader a` se dá chápat jako
+hom-funktor `Set(a,-)`. Dále typ `List ()` se dá chápat jako reprezentace
+přirozených čísel. Jak můžeme vytvořit jinou reprezentaci přirozených čísel
+pomocí Yonedy a funktoru `List`?
+
+## 5. CCC 
+
+1. Mějme kategorii všech částečně uspořádaných množin, kde objekty jsou částečně uspořádané množiny a morfismy jsou monotónní zobrazení ($f$ je monotónní, pokud pro každé $x$, $y$ platí, že pokud $x \le y$ pak $f(x) \le f(y)$) Tato kategorie je CCC. Co jsou produkty, exponenciály a terminální objekt v této kategorii? 
+
+2. Mějme kategorii **Cat**, kde objekty jsou malé kategorie a morfismy jsou funktory. Tato kategorie je CCC. Co jsou produkty, exponenciály a terminální objekt v této kategorii?
+
+## 6. Adjunkcie 
+
+1. Mějme kategorie $\textbf{Set}$, a $\textbf{Vect}_R$ (reálné vektorové prostory). 
+Mějme funktor $F: \textbf{Set} \rightarrow \textbf{Vect}_R$ takový, že množinu $S$ namapuje na vektorový prostor s bází $S$. Mějme funktor $U: \textbf{Vect}_R \rightarrow \textbf{Set}$ takový, že vektorový prostor namapuje na jeho množinu vektorů. Ukažte, že $F$ je levý adjunkt $U$ - například pomocí universal arrow adjunkce. [rozbor a riešenie](https://www.math3ma.com/blog/what-is-an-adjunction-part-2)
+
+2. Zkuste si pomocí adjunkcí zadefinovat produkt v kategorii.
+V Bartoszovi (knize, i přednáškách) je případně rozebrána část řešení
+pomocí $HomSet$ definice, ale přirozenost zobrazení mezi funktory nechal
+na čtenáři. Možná bude snazší použít Universal arrow definici. 
+[hint 1](ex_0602_h1.html) [hint 2](ex_0602_h2.html)
+
+## 8. Koprvoky
+
+1. Ukažte, že pravidla pro haskellové monády odpovídají pravidlům pro
+skládání šipek v ko-Kleisliho kategoriích.
+
+2. Navrhněte dvě různé platné instance třídy Comonad pro stromy s
+libovolnou aritou: data Tree a = Node a [Tree a].
+
+
+3. Uvažme tuto implementaci zaveditelnou pro každý funktor:
+
+>> `duplicate wx = fmap (λx → wx) wx.`
+
+> Rozhodněte, zda může vést při vhodné implementaci extract taková
+implementace k platné komonádě
+
+> a) u funktoru Stream,
+> b) u některého jiného funktoru,
+> c) obecně u všech funktorů.

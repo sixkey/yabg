@@ -1,0 +1,63 @@
+---
+preset: kocicky
+
+posttitle: Cvičenie 1
+---
+
+Nech kategória C je $(\mathbb{R}, (+n), (\cdot))$ a kategória D je $(\mathbb{R}^+, (\times n), (\cdot))$, potom obe kategórie reprezentujú grupu. Vieme povedať, že v $C$ a v $D$ je jeden objekt, nazvyme tieto objekty $c$ a $d$. Vieme, že $id_c = (+0)$, a $id_d = (\times 1)$.
+
+Na chvíľu uvážme, že miesto funkcií $(+n)$ a $(\times m)$ budeme uvažovať len $n$ a $m$. Funkcia, ktoré potom budú zobrazovať morfizmy budú $F : (+n) \mapsto (\times m)$ a $f : n \mapsto m$. 
+
+\newcommand \Fun[2]{ \text{#1 } #2}
+\begin{equation}
+\begin{aligned}
+\Fun{F}{(+0)} &= \Fun{F}{id_c} = id_{\Fun{F}{c}} = id_d = (\times 1) \\
+f(0) &= 1
+\end{aligned}
+\end{equation}
+
+\begin{equation}
+\begin{aligned}
+\Fun{F}{((+a) \cdot (+b))} &= \Fun{F}{(+(a + b))} = \Fun{F}(+ a) \cdot \Fun{F}(+ b) \\
+f(a + b) &= f(a) \times f(b)
+\end{aligned}
+\end{equation}
+
+Potom si všimnime, že $f$ je len $exp$. Opačne:
+
+\begin{equation}
+\begin{aligned}
+\Fun{G}{(\times 1)} &= \Fun{G}{id_d} = id_{\Fun{G}{d}} = id_c = (+ 0) \\
+g(1) &= 0
+\end{aligned}
+\end{equation}
+
+\begin{equation}
+\begin{aligned}
+\Fun{G}{((\times a) \cdot (\times b))} &= \Fun{G}{(\times (a \times b))} = \Fun{G}(\times a) \cdot \Fun{G}(\times b) \\
+g(a \times b) &= g(a) + g(b)
+\end{aligned}
+\end{equation}
+
+Potom si všimnime, že $g$ je len $log$. Pre príklad, $F$ zobrazuje $(+a)$ na $(\times \exp a)$.
+
+V haskell verzií, kde morfizmy reprezentujeme ako funkcie (Uvedomme si, že toto nie je jediný spôsob) `Double -> Double` potom bude *fmap* vyzerať následovne:
+
+```hs
+fmap h = \x -> x * exp ( h 0 ) 
+```
+
+`h 0` vybaluje z funkcie $(+n)$ jeho $n$.
+
+Rovnako to funguje aj opačným smerom s funkciou $log$. 
+
+```hs
+fmap h = \x -> x + log ( h 1 )
+```
+
+Pri pointfree som neuvážil, že *fmap* nie je len *f*. Pointfree verzia ale existuje a vyzerá následovne: 
+
+```hs
+fmap = (*) . exp . ( flip ( $ ) ) 0
+```
+

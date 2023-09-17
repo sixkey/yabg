@@ -1,0 +1,74 @@
+---
+preset: kocicky
+---
+
+## Disclaimer 
+
+*Hlavná osnova sa presunula [tu](https://is.muni.cz/auth/el/fi/jaro2022/IV125/seminar-category_theory.qwarp), táto stránka je len dôsledok sunk cost falacy. V prípade, že ku stránke nemáte prístup, píšte na kocicky@fi.*
+
+*Pre tento semester hlavná osnova skončila.*
+
+*Prezentujúcim aj účastníkom ďakujeme za účasť 🐸❤️.*
+
+## Osnova semináru 
+
+25.02.2022 - Úvod do kategórii ([rozdavok](rozdavek_01.pdf), [stránka](rozdavek_01.html))
+
+04.03.2022 - Funktory a prirodzené transformácie ([rozdavok](rozdavek_02.pdf))
+
+11.03.2022 - Produkty a koprodukty ([rozdavok](rozdavek_03.pdf), [stránka](rozdavek_03.html))
+
+18.03.2022 - Yoneda lemma ([rozdavok](rozdavek_04.pdf), [poznámky](poznamky_04.pdf))
+
+25.03.2022 - Kartézsky Uzavrené Kategórie a Lambda kalkulus ([rozdavok](rozdavek_05.pdf))
+
+01.04.2022 - Adjunkcie ([rozdavok](rozdavek_06.pdf))
+
+08.04.2022 - Monády ([rozdavok](rozdavek_07.pdf))
+
+15.04.2022 - Voľno
+
+22.04.2022 - ~~Komonády~~ Koprvoky ([rozdavok](rozdavek_08.pdf))
+
+29.04.2022 - Voľno
+
+06.05.2022 - F-algebry a F-koalgebry ([rozdavok](rozdavek_09.pdf), [stránka](rozdavek_09), [článok](https://www.sciencedirect.com/science/article/pii/S0304397500000566))
+
+27.05.2022 o 15:15 - (Ko)limity ([rozdavok](rozdavek_10.pdf))
+
+## Organizácia
+
+Seminár prebieha každý piatok od 13:30 do 15:10 v ~~A220~~ A218. Každý člen semináru pripraví počas semestru _aspoň_ jednu prezentáciu, ktorá by mala odprezentovať zadanú tému. Téma a jej "prednášajúci" sa určí vždy _aspoň_ dva týždne dopredu. V prípade, že máte seminár zapísaný sa zároveň očakáva, že sa semináru budete zúčastňovať _vždy_, keď to bude možné.
+
+V prípade potreby môžete písať na mail __kocicky@fi.muni.cz__ alebo na irc kanál __#fimu-kocicky__.
+
+V prípade, že máte k semináru nejaké materiály (rozdavok, prezentáciu, ...) ~~môžete mi ich poslať. Zverejním ich na tejto stránke v časti osnova.~~ pošlite ich na __kocicky@fi.muni.cz__.
+
+
+V prípade, že chcete dostávať organizačné maily k semináru a nie ste zapísaný do predmetu, pošlite mail na kocicky@fi. 
+
+## Literatúra
+
+Ako primárny zdroj osnovy a kľúčových slov k danej téme slúži Jan-Willem Buurlage. Milewski slúži ako zdroj intuície a príkladov. Awodey je skutočne doplnkový.
+
+__Osnova__: Jan-Willem Buurlage - [Categories and Haskell](https://github.com/jwbuurlage/category-theory-programmers)
+
+__Odporúčaný__: Bartosz Milewski - [Category Theory for Programmers](https://bartoszmilewski.com/2014/10/28/category-theory-for-programmers-the-preface), prípadne jeho [prednášky](https://www.youtube.com/playlist?list=PLbgaMIhjbmEnaH_LTkxLI7FMa2HsnawM_).
+
+__Doplnkové__: 
+
+- Steve Awodey: [Category Theory](https://englishonlineclub.com/pdf/Category%20Teory%20[EnglishOnlineClub.com].pdf)
+
+- Emily Riehl: [Category Theory in Context](https://math.jhu.edu/~eriehl/context.pdf)
+
+__Iné__:
+
+Rutten, J.J., 2000. Universal coalgebra: a theory of systems. Theoretical computer science, 249(1), pp.3-80.
+
+
+
+## Nástroje 
+
+Na tvorbu rozdavku sa môže hodiť [pandoc](https://pandoc.org/) a [tikzcd](https://ctan.math.washington.edu/tex-archive/graphics/pgf/contrib/tikz-cd/tikz-cd-doc.pdf). Kresliť diagramy môžete napríklad [tu](https://tikzcd.yichuanshen.de/).
+
+Príklad rozdavku z prvého semináru v md je [tu](rozdavek_01.md). tikzcd je generovaný kresliacim nástrojom vyššie.
