@@ -1,0 +1,19 @@
+---
+title: Riešenie `nat_to_bin` a `bin_to_nat`.
+image: public/cock.png
+---
+
+```coq
+Fixpoint nat_to_bin ( n : nat ) : bin := 
+  match n with 
+  | O => Z 
+  | S n => incr ( nat_to_bin n )
+  end.
+
+Fixpoint bin_to_nat (m:bin) : nat := 
+  match m with 
+  | B0 b => 2 * bin_to_nat b
+  | B1 b => 1 + 2 * bin_to_nat b
+  | Z => 0
+  end.
+``` 

@@ -1,0 +1,51 @@
+---
+preset: mzi
+title: O indukcii na celých číslach
+image: public/index.png
+---
+
+Tento post slúži ako odpoveď na nasledujúcu otázku z cvičenia MZI:
+
+1. Môžeme urobiť indukciu na celých číslach? 
+2. Čo by to vôbec znamenalo a ako by to fungovalo?
+
+*Pre študentov MZI: obsah tohto príspevku je rozhodne mimo záber predmetu MZI a veci ako usporiadanie sú definované neskôr (dobré usporiadanie dokonca afaik nikdy); tento príspevok teda čítajte na vlastné riziko.*
+
+Na prirodzených číslach vieme zaviesť indukciu ako platnosť nasledujúcej formule:
+
+$$
+    [ \phi(0) \land \forall k \in \mathbb{N} . \phi(k) \implies \phi(k + 1) ] \implies [ \forall n \in \mathbb{N} . \phi(n) ]
+$$
+
+Mohli by sme zaviesť niečo podobné na celých číslach; napríklad ako formulu
+
+$$
+    [ \phi(0) \land \forall k \in \mathbb{Z^+} . \phi(k - 1) \implies \phi(k) \land \forall k \in \mathbb{Z^-} . \phi(k + 1) \implies \phi(k) ] \implies [ \forall z \in \mathbb{Z} . \phi(z) ]?
+$$
+
+Mohli. 
+
+*Dôkaz.* Uvážme nasledujúce usporiadanie $\prec$ celých čísel:
+
+$$
+    0 \prec -1 \prec 1 \prec -2 \prec 2 \prec -3 \prec 3 \prec ...
+$$
+
+Všimnime si, že pre $a, b \in \mathbb{Z}$, ak $|a| < |b|$ potom $a \prec b$. Pre ľubovoľnú neprázdnu podmnožinu $A \subseteq \mathbb{Z}$ dokážeme voči tomuto usporiadaniu nájsť najmenší prvok: zoberieme $z$ s najmenšou absolútnou hodnotou a v prípade, že sú také dve (napr. $-3, 3$ v $\{-3, 3, 4, 5\}$), zoberieme to záporné. Usporiadanie, v ktorom sme pre každú neprázdnu podmnožinu schopný nájsť najmenší prvok, nazývame *dobré usporiadanie* (toto usporiadanie rozhodne nie je jediné dobré na celých číslach a v obecnosti môžu tieto usporiadania vyzerať "exotickejšie", napríklad $0 \prec' 1 \prec' 2 \prec' ... \prec' -1 \prec' -2 \prec' -3 \prec' ...$).
+
+Uvážme, že by "indukcia" na celých číslach neplatila. Potom ale platia predpoklady, teda platia formule
+
+1. $\phi(0)$,
+2. $\forall k \in \mathbb{Z^+} . \phi(k - 1) \implies \phi(k)$,
+3. a $\forall k \in \mathbb{Z^-} . \phi(k + 1) \implies \phi(k)$,
+
+no zároveň neplatí záver, teda existuje $z \in \mathbb{Z}$ pre ktoré platí
+$\neg \phi(z)$. Uvážme množinu $A$ takých $z$. Taká množina je z porušenia záveru
+neprázdna a teda má v našom *dobrom* usporiadaní $\prec$ najmenší prvok $z'$.
+Potom ale nastane jeden z týchto prípadov:
+
+1) $z' = 0$: potom ale $\neg \phi(0)$, čo je spor s prvým predpokladom, v ktorom $\phi(0)$.
+2) $z' > 0$: potom ale obmena druhého predpokladu pre $k = z'$ spolu s $\neg\phi(z')$ ukazuje, že $\neg\phi(z' - 1)$, a teda $z' - 1 \in A$. $z' - 1$ má ale zjavne menšiu absolútnu hodnotu ako $z' > 0$ a teda je v našom usporiadaní menšie ako $z'$, teda $z' - 1 \prec z'$. To je ale spor s tým, že $z'$ je voči $\prec$ najmenšie v $A$. 
+2) $z' < 0$: potom ale obmena tretieho predpokladu pre $k = z'$ spolu s $\neg\phi(z')$ ukazuje, že $\neg\phi(z' + 1)$, a teda $z' + 1 \in A$. $z' + 1$ má ale zjavne menšiu absolútnu hodnotu ako $z' < 0$ a teda je v našom usporiadaní menšie ako $z'$, teda $z' + 1 \prec z'$. To je ale spor s tým, že $z'$ je voči $\prec$ najmenšie v $A$. 
+
+V každom z prípadov sa teda dostávame do sporu. Nami definovaná "indukcia" na celých číslach teda platí. 

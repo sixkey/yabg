@@ -1,0 +1,92 @@
+---
+title: Coq seminár.
+image: public/cock.png
+---
+
+Relevantná [kapitola](https://softwarefoundations.cis.upenn.edu/lf-current/Induction.html) v knihe Logical Foundations.
+
+## Osnova 
+
+- Kompilovanie a import
+- Indukcia 
+- Dôkazy v dôkazoch
+- Formal vs. Informal proofs 
+- Nat na Bin a späť
+
+### Doterajšie taktiky
+
+Taktiky, ktoré sme videli v `Basics.v` a `Induction.v`.
+
+```coq
+
+n - mená
+e - výrazy vo funkcionálnom jazyku
+c - taCtics 
+t - typ
+
+simpl
+reflexivity
+rewrite { ->, <- or nothing } c1
+
+intro n1
+intros n1 n2 n3 ... nk
+
+destruct n as [ n1 | n2 | n3 | ... | nk ] (** creates k goals **)
+induction n as [ n1 IHc1 | n2 IHc2 | n3 IHc3 | ... | nk IHck ] (**creates k goals **)
+
+admit
+
+assert ( n : t ) (** creates o new goal **)
+replace e1 with e2 (** creates two goals **)
+```
+
+### Ďalšie taktiky, ktoré sa môžu hodiť
+
+```
+exact e1
+assumption 
+
+try 
+do n c 
+```
+
+Pre ešte viac taktík, pozri [tu](https://coq.inria.fr/refman/coq-tacindex.html).
+
+### Commands
+
+Môže sa hodiť
+[Search](https://coq.inria.fr/refman/proof-engine/vernacular-commands.html#coq:cmd.Search),
+ktorý umožňuje relatívne šikovne hladať tvrdenia v kontexte.  
+
+[Riešenie](attic/ntbbtn) k `nat_to_bin` a `bin_to_nat` z `Basics.v`.
+
+### Syntax
+
+```coq
+Inductive nat : Type :=
+  | O
+  | S (n : nat).
+
+Definition is_zero (n : nat) : bool := 
+  match n with 
+  | O => true
+  | S n' => false 
+  end.
+
+Fixpoint plus (n : nat) (m : nat) : nat :=
+  match n with
+  | O => m
+  | S n' => S (plus n' m)
+  end.
+
+Notation "x + y" := (plus x y) (at level 50, left associativity) : nat_scope.
+
+(** Theorem, Lemma, Fact, Example **)
+Theorem add_0_l : forall n:nat, O + n = n.
+Proof.
+  intros n.
+  simpl. 
+  reflexivity.
+Qed.
+(** Prípadne Admitted. alebo Abort. **)
+```

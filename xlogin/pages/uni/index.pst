@@ -4,7 +4,7 @@ title: University stuff
 
 Here is some university related stuff. 
 
-%%% list-library Teaching_Posts path uni not path index.pst not path kocicky$
+%%% list-library Teaching_Posts path uni not path index.pst not path kocicky
 
 ### Teaching
 
@@ -22,4 +22,4 @@ PV248: Python Seminar
 
 ### Seminars
 
-[Kocicky: Bootstrapped Category Theory for Computer Science.](/uni/kocicky)
+[Kocicky: Bootstrapped Category Theory for Computer Science.](kocicky)
