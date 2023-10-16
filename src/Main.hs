@@ -33,6 +33,8 @@ import qualified Text.Blaze.Html5 as H
 import Text.Blaze.Html5 ( (!) )
 import qualified Text.Blaze.Html5.Attributes as A
 
+import Options.Applicative
+
 -- Data -----------------------------------------------------------------------
 
 data PostMeta = PostMeta { title :: String
@@ -45,6 +47,8 @@ data Post = Post { meta :: PostMeta
 
 data YabgSettings = YabgSettings { srcPath :: FilePath
                                  , dstPath :: FilePath
+                                 , rootPath :: String
+                                 , dev :: Bool
                                  , dirsToCopy :: [ ( FilePath, FilePath ) ]
                                  , defLinks :: [ String ]
                                  , nav :: [ ( String, String ) ] }
@@ -96,6 +100,11 @@ post :: PostMeta -> H.Html -> Post
 post meta content = Post { meta = meta
                          , content = content }
 
+-- Path -----------------------------------------------------------------------
+
+fromRoot :: YabgSettings -> String -> String
+fromRoot sttngs = ( rootPath sttngs </> ) 
+
 -- Rendering ------------------------------------------------------------------
 
 comment :: H.Html -> H.Html
@@ -107,13 +116,12 @@ postTitle = H.h1 . H.toHtml
 postHeader :: Post -> H.Html
 postHeader = postTitle . title . meta
 
-imagePath :: PostMeta -> Maybe String
-imagePath meta = do path <- image meta
-                    return $ "/" ++ path
+imagePath :: YabgSettings -> PostMeta -> Maybe String
+imagePath sttngs meta = fromRoot sttngs <$> image meta
 
-sideBar :: Post -> Maybe H.Html
-sideBar post = do
-    imgPath <- imagePath ( meta post )
+sideBar :: YabgSettings -> Post -> Maybe H.Html
+sideBar sttngs post = do
+    imgPath <- imagePath sttngs ( meta post )
     return $ H.img ! ( A.src . H.stringValue $ imgPath )
                    ! A.id "title-image"
 
@@ -122,33 +130,33 @@ renderNavigation links = H.ul ! A.id "nav" $
     forM_ links $ \ ( text, url ) ->
         H.li $ H.a ! A.href ( H.stringValue url ) $ H.toHtml text
 
-postUrl :: PostMeta -> String
-postUrl pMeta = changeExt "html" $ "/" ++ postPath pMeta
+postUrl :: YabgSettings -> PostMeta -> String
+postUrl sttngs pMeta = changeExt "html" $ fromRoot sttngs $ postPath pMeta
 
-listLibrary :: [ PostMeta ] -> H.Html
-listLibrary [] = comment "this library is empty"
-listLibrary posts = H.div ! A.class_ "list-lib" $ mapM_ listPost posts
+listLibrary :: YabgSettings -> [ PostMeta ] -> H.Html
+listLibrary sttngs [] = comment "this library is empty"
+listLibrary sttngs posts = H.div ! A.class_ "list-lib" $ mapM_ listPost posts
   where
     listPost :: PostMeta -> H.Html
     listPost post = H.div ! A.class_ "list-lib-tile" $ 
-        H.a ! A.href ( H.stringValue ( postUrl post ) ) $ do 
+        H.a ! A.href ( H.stringValue ( postUrl sttngs post ) ) $ do 
             H.p ! A.class_ "tile-title" $ H.toHtml ( title post )
             H.p ! A.class_ "tile-desc" $ H.toHtml ( desc post )
 
-imageLibrary :: [ PostMeta ] -> H.Html
-imageLibrary [] = comment "this library is empty"
-imageLibrary posts = H.div ! A.class_ "image-lib" $ mapM_ imagePost posts
+imageLibrary :: YabgSettings -> [ PostMeta ] -> H.Html
+imageLibrary sttngs [] = comment "this library is empty"
+imageLibrary sttngs posts = H.div ! A.class_ "image-lib" $ mapM_ imagePost posts
   where
     garImagePath :: PostMeta -> String
-    garImagePath meta = fromMaybe "/public/square.png" $ imagePath meta
+    garImagePath meta = fromMaybe ( fromRoot sttngs "public/square.png" ) 
+                                  ( imagePath sttngs meta )
     imagePost :: PostMeta -> H.Html
-    imagePost post = H.a ! A.href ( H.stringValue $ postUrl post )
+    imagePost post = H.a ! A.href ( H.stringValue $ postUrl sttngs post )
                          ! A.class_ "image-lib-tile" $ do
         H.img ! A.src ( H.stringValue ( garImagePath post ) )
               ! A.class_ "image-lib-tile-bg"
         H.p ! A.class_ "image-lib-tile-fg"
             $ H.toHtml $ title post
-
 
 maybeElement :: Maybe H.Html -> H.Html
 maybeElement ( Just x ) = x
@@ -159,12 +167,14 @@ renderPost settings post = H.html $ do
     H.head $ do
         H.title ( H.toHtml . title . meta $ post )
         H.script ! A.src ( H.stringValue $ unpack P.defaultMathJaxURL ) $ pure ()
+        when ( dev settings ) $
+           H.script ! A.src ( H.stringValue "https://livejs.com/live.js" ) $ pure ()
         mapM_ ( \href -> H.link ! A.rel "stylesheet" ! A.href ( H.stringValue href ) )
               ( defLinks settings )
     H.body $ do
         H.div ! A.id "root" $ do
             H.div ! A.id "left-wing" $
-                maybeElement $ sideBar post
+                maybeElement $ sideBar settings post
             H.div ! A.id "main-body" $ do
                 H.div ! A.id "title-nav" $ do
                     postHeader post
@@ -226,8 +236,6 @@ documentToPost ( YabgDoc meta blocks ) = do
         ( _, html ) <- runWriterT $ forM_ blocks $ go
         return $ post meta html
     where
-
-
         filterAtom :: String -> String -> PostMeta -> Bool
         filterAtom "title" p post = title post =~ p
         filterAtom "path" p post = postPath post =~ p
@@ -243,14 +251,15 @@ documentToPost ( YabgDoc meta blocks ) = do
 
         buildFilter x _ = error $ "undefined yabg filter: " ++ show x
         postList :: String
-                 -> ( [ PostMeta ] -> H.Html )
+                 -> ( YabgSettings -> [ PostMeta ] -> H.Html )
                  -> [ String ]
                  -> WriterT H.Html YabgMonad ()
         postList listTitle listFun fltr = do
             psts <- asks posts
+            sttngs <- asks settings
             let relevantPosts = filter ( buildFilter fltr ) psts
             tell ( H.h3 ! A.class_ "lib-title" $ H.toHtml listTitle )
-            tell ( listFun relevantPosts )
+            tell ( listFun sttngs relevantPosts )
         parseTitle = strReplace '_' ' '
 
         go ( InlineDir ( "image-library" : title : rest ) ) =
@@ -320,14 +329,40 @@ yabgPipeline = do
                                      , dstPath = "bin" } } )
           postDirectory
 
+---- Main ---------------------------------------------------------------------
+
+data Argv = Argv
+    { aRootPath :: String
+    , aDev :: Bool
+    }
+
+argumentParser :: Parser Argv
+argumentParser = Argv 
+    <$> strOption ( long "rootpath" 
+                 <> metavar "ROOTPATH" 
+                 <> help "The rootpath, e.g. / or /~xkucerak" )
+    <*> switch
+          ( long "dev"
+         <> short 'd'
+         <> help "whether to run in development" )
+
+argumentParserInfo :: ParserInfo Argv
+argumentParserInfo = info ( argumentParser <**> helper )
+    ( fullDesc 
+    <> progDesc "Build a site using yet another blog generator." )
+
 main :: IO ()
 main = do print "yabg"
+          args <- execParser argumentParserInfo
+          let root = aRootPath args 
           runYabgMonad yabgPipeline
                        YabgSettings { srcPath = "xlogin"
                                     , dstPath = "bin"
+                                    , rootPath = root
+                                    , dev = aDev args
                                     , dirsToCopy = [ ( "xlogin/public", "public" ) 
                                                    , ( "xlogin/data", "" ) ]
-                                    , defLinks = [ "/public/index.css" ]
-                                    , nav = [ ( "xkucerak", "/" )
-                                            , ( "uni", "/uni" )
+                                    , defLinks = [ root </> "public/index.css" ]
+                                    , nav = [ ( "xkucerak", root </> "" )
+                                            , ( "uni", root </> "uni" )
                                             ] } []
