@@ -1,0 +1,211 @@
+---
+preset: mzi
+title: "Pieskovisko: Prirodzené čísla"
+image: public/nats.png
+---
+
+Tento dokument by mal slúžiť ako cvičenie induktívnych definícií a dôkazu indukciou, skrze postupného budovania aritmetiky na prirodzených číslach. V úvode si predstavíme definíciu prirodzených čísel a induktívnych princípov, potom postupne definujeme základné aritmetické operácie a overíme, že majú známe vlastnosti (majú neutrálne prvky, sú asociatívne alebo komutatívne, platia medzi nimi pravidlá distributivity). Primárnou motiváciou je jednoduchosť týchto tvrdení. Každý dôkaz teda môže byť teda detailný a mal by sa odkazovať len na predpoklady a už dokázané lemmy alebo tvrdenia. Celý proces dokazovania by mal byť teda sústredený do používania indukcie a pamätania si lokálneho kontextu (chápať čo viem a čo chcem). 
+
+## Prirodzené čísla
+
+Uvážme, že máme prirodzené čísla definované následovne: 
+
+\newcommand\succ{\text{s}}
+\newcommand\nats{\mathbb{N}}
+\newcommand\add{\text{add}}
+\newcommand\mul{\text{mul}}
+\newcommand\double{\text{double}}
+\newcommand\quadruple{\text{quadruple}}
+\newcommand\ipeq{\overset{\small IP}{=}}
+
+\begin{aligned}
+    0 &\in \mathbb{N}, \\
+    n &\in \mathbb{N} \implies \succ(n) \in \nats.
+\end{aligned}
+
+Potom každé prirodzené číslo $n\in\nats$ vyzerá ako  
+
+$$
+    n = \underbrace{\succ(\succ(\succ(...(\succ}_{\text{$n$-krát}}(0))...))).
+$$
+
+Konštanty definujeme prirodzene, no pamätajme, že je to len *meta* skratka. Čísla ako 1, 2 alebo 3 sú teda len mená, ktoré reprezentujú $\succ(0), \succ(\succ(0))$ a $\succ(\succ(\succ(0)))$.
+
+Na takto vytvorených prirodzených číslach vieme induktívne definovať funkcie a to formou 
+
+\begin{aligned}
+    f(0) &= \text{aritmetický výraz} \\
+    f(\succ(n)) &= \text{aritmetický výraz potencionálne obsahujúci $f(n)$}
+\end{aligned}
+
+napríklad
+
+**Definícia 0.1.** 
+\begin{aligned}
+    \double(0) &= 0 \\
+    \double(\succ(n)) &= \succ(\succ(\double(n)))
+\end{aligned}
+
+**Definícia 0.2.**
+\begin{aligned}
+    \quadruple(0) &= 0 \\
+    \quadruple(\succ(n)) &= \succ(\succ(\succ(\succ(\quadruple(n)))))
+\end{aligned}
+
+**Kontrola 0.1** Ako sa vyhodnotí $\double(2)$? Ako sa vyhodnotí $\quadruple(2)$?
+
+Tvrdenia o takýchto funkciách potom dokazujeme zväčša indukciou. V našom prípade
+(a aj obecne v induktívne definovaných štruktúrach) v takomto dôkaze dokazujeme
+tvrdenie pre všetky možné "hodnotové konštruktory" (v našom prípade konštanta $0$ a unárne $\succ$) s tým, že o vnútorných
+hodnotách prijímame indukčný predpoklad. V našom prípade sa teda dá indukcia
+vyjadriť ako:
+
+$$
+    \Big[ \underbrace{\varphi(0)}_{\text{báza}}\land \underbrace{\forall k . \big( \varphi( k ) \implies \varphi( s( k ) ) \big)}_{\text{indukčný krok}} \Big] \iff \Big( \forall n . \varphi( n ) \Big)
+$$
+
+Všimnime si podobnosť so samotnou induktívnou definíciou prirodzených čísel.
+Ilustrujme takýto dôkaz na nasledujúcom tvrdení.
+
+**Tvrdenie 0.1** Pre všetky $n \in \nats$ platí $\double(\double(n)) = \quadruple(n)$.
+
+*Dôkaz*: Indukciou voči $n$:
+
+1. Báza: Nech teda $n = 0$. Z definíce funkcie $\double$ a $\quadruple$ dostávame nasledujúce rovnosti 
+
+$$\double(\double(0)) \doteq \double(0) \doteq 0 \doteq \quadruple(0).$$
+
+2. Indukčný krok: Nech $k \in \nats$ je ľubovoľné také, že $\double(\double(k)) = \quadruple(k)$. Treba ukázať, že $\double(\double(s(k))) = \quadruple(s(k))$. Potom ale 
+\begin{aligned}
+\double(\double(s(k))) &\doteq \double(\succ(\succ(\double(k)))) \\
+                       &\doteq \succ(\succ(\double(\succ(\double(k))))) \\
+                       &\doteq \succ(\succ(\succ(\succ(\double(\double(k)))))) \\
+                       &\ipeq \succ(\succ(\succ(\succ(\quadruple(k))))) \\
+                       &\doteq \quadruple(s(k)).
+\end{aligned}
+
+Z indukcie teda plynie originálne tvrdenie. $\square$
+
+V našom dôkaze sme rovnosti označovali $\doteq$ v prípade, že plynú z
+definície, $\ipeq$ v prípade, že plynú z induktívneho predpokladu. Posledný typ
+rovností, ktoré v tomto dokumente môžeme (a budeme) potrebovať, je odvolávanie
+na už dokázané tvrdenia a rôzne predpoklady. V každom dôkaze by ste pri každej
+rovnosti mali byť schopní ukázať na definíciu, lemmu, tvrdenie alebo
+predpoklad, z ktorého táto rovnosť *priamo* plynie. 
+
+Napríklad v predošlom dôkaze 
+
+1. rovnosť vyplýva z definície $\double$ aplikovaného na $\succ(k)$, teda $\double(\succ(k)) = \succ(\succ(\double(k)))$,
+
+1. rovnosť vyplýva z definície $\double$ aplikovaného na $\succ(\succ(\double(k)))$, teda $\double(\succ(\succ(\double(k)))) = \succ(\succ(\double(\succ(\double(k)))))$,
+
+1. rovnosť vyplýva z definície $\double$ aplikovaného na $\succ(\double(k))$,
+teda $\double(\succ(\double(k))) =
+\succ(\succ(\double(\double(k))))$,
+
+1. rovnosť vyplýva z indučného predpokladu, podľa ktorého $\double(\double(k)) = \quadruple(k)$, 
+
+1. rovnosť vyplýva z definície $\quadruple$ aplikovaného na $\succ(k)$, teda $\quadruple(\succ(k)) = \succ(\succ(\succ(\succ(\quadruple(k)))))$.
+
+V niektorých tvrdeniach však netreba indukciu. 
+
+**Tvrdenie 0.2** Pre všetky $n \in \nats$ platí $\double(\double(\double(\double(n)))) = \quadruple(\quadruple(n))$.
+
+*Dôkaz.* Nech $n \in \nats$ je ľubovoľné, naďalej pevné. Potom z Tvrdenia 0.1 aplikovaného na $n$ vieme, že $\double(\double(n)) = \quadruple(n)$ a teda 
+
+\begin{equation}
+    \double(\double(\double(\double(n)))) = \double(\double(\quadruple(n)))
+\end{equation}
+
+Potom ale z Tvrdenia 0.1 aplikovaného na $\quadruple(n)$ vieme, že $\double(\double(\quadruple(n))) = \quadruple(\quadruple(n))$. 
+
+$\square$
+
+## Sčítanie 
+
+**Definícia 1.** Pre pevné $a \in \nats$ definujte induktívne funkciu $\add_a : \nats \to \nats$, ktorá sa bude chovať ako pričítanie $a$. $^{★}$
+
+**Notácia 1.** Definujeme operátor $+$ následovne: $(b + a) := \add_a(b)$.
+
+*Pri notácii nemusíte nič robiť. Treba si len vždy rozmyslieť, na ktorej strane je ktoré číslo. Uvedomte si, že podobne ako pri konštantách, by sme sa bez nich zaobišli.* 
+
+Uvedomte si, že sme si asociativitu operátoru $+$ nedefinovali, teda nemôžeme mať výraz, kde by boli zátvorky implicitné; napr. $1 + 2 + 3$. Štandardne by sme všade mali písať okolo $+$ zátvorky. V záujme čitateľnosti budeme ale najvonkajší pár zátvoriek vynechávať, teda $1 + 2$ chápeme ako $(1 + 2)$. Pri $1 + 2 + 3$ musíme určiť zátvorky, napr. $(1 + 2) + 3$ alebo $1 + (2 + 3)$. V tento moment nevieme, že v obecnosti sú tieto dve možnosti ekvivalentné. Zároveň nevieme, že je tento operátor komutatívny, teda že v obecnosti platí $a + b = b + a$. Aj napriek tomu, že používame štandardný symbol +, *nevieme* aké ma chovanie. Tento operátor totiž vznikol dva paragrafy vyššie a vnútri sa odvoláva na *vašu* (potencionálne nesprávnu) definíciu (napr. takú, ktorá v skutočnosti ráta celočíselné delenie). O týchto vlastnostiach sa ale presvedčíme vo zvyšku tejto sekcie. 
+
+Dobrý nápad je urobiť si nasledujúcu kontrolu.
+
+**Kontrola 1.** Vyhodnoťte nasledujúce výrazy: $0 + 3$, $3 + 0$, $2 + 2$. Chová sa vaša definícia správne? (výraz *$0 + 3$ je "len skratka", je teda definične rovný $\add_{\succ(\succ(\succ(0)))}(0)$, no nie $\add_0(\succ(\succ(\succ(0))))$; na poradí záleží*).
+
+V tento moment sme si definovali sčítanie prirodzených čísel. Je ale zjavné¸ že definícia tohto sčítania je nesymetrická (viď proces vyhodnocovania $0 + 3$ a $3 + 0$). Tento fakt budú demonštrovať aj rozdiely v obtiažnosti dôkazov nasledujúcich, zdanlivo podobných, tvrdení. *Hint: Potrebujem pri všetkých použiť indukciu? Nie sú niektoré rovnosti len definície? Rozpíšte si výraz $b + a$ do podoby $add_a(b)$. V prípade, že neviete ako začať, pozrite sa na Tvrdenie 0.1.*
+
+**Lemma 1.** Pre všetky $n \in \nats$ platí, že $0 + n = n$. $^{★}$
+
+**Lemma 2.** Pre všetky $n \in \nats$ platí, že $n + 0 = n$. $^{★}$
+
+**Lemma 3.** Pre všetky $n \in \nats$ platí, že $1 + n = s(n)$. $^{★}$
+
+**Lemma 4.** Pre všetky $n \in \nats$ platí, že $n + 1 = s(n)$. $^{★}$
+
+V nasledujúcich dvoch tvrdeniach si môžete zvoliť parameter, voči ktorému budete robiť indukciu. Indukcia sa dá "vrstviť", teda môžete robiť indukciu voči $m$ v indukčnom kroku voči $n$. V týchto príkladoch to ale netreba. Veďte teda indukciu buď voči $m$, alebo $n$. *Hint: v tomto bode sa môže oplatiť použiť predošlé lemmy.* 
+
+**Lemma 5.** Pre všetky $n, m \in \nats$ platí, že $s(m + n) = s(m) + n$. $^{★}$
+
+**Lemma 6.** Pre všetky $n, m \in \nats$ platí, že $s(m + n) = m + s(n)$. $^{★★}$
+
+**Lemma 7.** Pre všetky $n \in \nats$ platí, že $n + n = \double(n)$.  $^{★★}$
+
+Teraz sa presunieme k známym vlastnostiam komitativity a asociativity. *Hint: hore uvedené tvrdenia sa v nasledujúcich dôkazoch môžu hodiť. Ak sa teda zaseknete, pozrite sa čo už viete.*.
+
+**Tvrdenie 1.** Pre všetky $m, n \in \nats$ platí, že $m + n = n + m$. $^{★★}$
+
+**Tvrdenie 2.** Pre všetky $m, n, l \in \nats$ platí, že $m + ( n + l ) = ( m + n ) + l$. $^{★★★}$
+
+*Dávajte si pozor, že ste v dôkaze predošlého cvičenia neurobili chybu $\succ(a + b) + c = \succ( a + b + c)$, na ľavú stranu totiž ide celý výraz v zátvorke a teda $\succ(a + b) + c = \succ((a + b) + c)$. Spomeňte si na komentár ohľadom zátvorkovania*. 
+
+## Násobenie 
+
+**Definícia 2.** Pre pevné $a \in \nats$ definujte induktívne funkciu $\mul_a : \nats \to \nats$, ktorá sa bude chovať ako vynásobenie číslom $a$. $^{★★}$
+
+**Notácia 2.** Definujeme operátor $\cdot$ následovne: $a \cdot b := \mul_b(a)$. $^{★★}$
+
+Situácia s zátvorkami je podobná ako pri $+$.
+
+**Kontrola 2.** Vyhodnoťte nasledujúce výrazy: $0 \cdot 3$, $3 \cdot 1$, $2 \cdot 2$. Chová sa vaša definícia správne? 
+
+Podobne ako v prípade sčítania je táto definícia silne nesymetrická. *Hint: aspoň v pár prikládoch 
+
+**Lemma 8.** Pre všetky $n \in \nats$ platí, že $0 \cdot n = 0$. $^{★}$
+
+**Lemma 9.** Pre všetky $n \in \nats$ platí, že $n \cdot 0 = 0$. $^{★★}$
+
+**Lemma 10.** Pre všetky $n \in \nats$ platí, že $1 \cdot n = n$. $^{★★}$
+
+**Lemma 11.** Pre všetky $n \in \nats$ platí, že $n \cdot 1 = n$. $^{★★}$
+
+**Lemma 12.** Pre všetky $n \in \nats$ platí, že $s(m) \cdot n = ( m \cdot n ) + n$. $^{★}$
+
+Nasledujúce cvičenia sú koncepčne jednoduché, no treba si dať pozor na
+korektnosť úprav. Pri každej rovnosti si rozmyslite, z ktorého tvrdenia plynie. 
+
+**Lemma 13.** Pre všetky $n \in \nats$ platí, že $m \cdot s(n) = m + ( m \cdot n )$. $^{★★★}$
+
+**Lemma 14.** Pre všetky $n \in \nats$ platí, že $2 \cdot n = n + n$. $^{★★}$
+
+**Lemma 15.** Pre všetky $n \in \nats$ platí, že $n \cdot 2 = n + n$. $^{★★★}$
+
+*Hint: Pre nasledujúcu lemmu existuje veľmi krátky argument.*
+
+**Lemma 16.** Pre všetky $n \in \nats$ platí, že $2 \cdot n = \double(n)$. $^{★★}$
+
+A teraz už známe tvrdenia distributivity, asociativity a komutativity.
+
+**Tvrdenie 3.** Pre všetky $m, n, l \in \nats$ platí, že $l\cdot( m + n ) = l \cdot m + l \cdot n$. $^{★★}$
+
+**Tvrdenie 4.** Pre všetky $m, n, l \in \nats$ platí, že $( m + n )\cdot l = m \cdot l + n \cdot l$. $^{★★}$
+
+**Tvrdenie 5.** Pre všetky $m, n \in \nats$ platí, že $m \cdot n = n \cdot m$. $^{★★★}$
+
+**Tvrdenie 6.** Pre všetky $m, n, l \in \nats$ platí, že $m \cdot ( n \cdot l ) = ( m \cdot n ) \cdot l$. $^{★★★}$
+
+## Fin.
+
+Tento príspevok je inšpirovaný [The Natural Number Game](https://www.ma.imperial.ac.uk/~buzzard/xena/natural_number_game/), v ktorom sa tieto tvrdenia dokazujú v [Lean](https://lean-lang.org/). 
