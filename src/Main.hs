@@ -167,6 +167,7 @@ renderPost settings post = H.html $ do
     H.head $ do
         H.title ( H.toHtml . title . meta $ post )
         H.script ! A.src ( H.stringValue $ unpack P.defaultMathJaxURL ) $ pure ()
+        H.meta ! A.name ( H.stringValue $ "viewport" ) ! A.content ( H.stringValue "width=device-width, initial-scale=1.0" )
         when ( dev settings ) $
            H.script ! A.src ( H.stringValue "https://livejs.com/live.js" ) $ pure ()
         mapM_ ( \href -> H.link ! A.rel "stylesheet" ! A.href ( H.stringValue href ) )
