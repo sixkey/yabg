@@ -1,0 +1,124 @@
+---
+title: Graph Schemes and Treewidth
+---
+
+It is often the case while studying a new piece of math, that 
+one starts to see the piece of math in everything. In todays 
+episode of halucinations of abstract nonsense in computer science,
+we shall look at the connection between schemes--notion often used 
+in algebraic geometry--and treewidth decomposition--a tool used for 
+developing graphs algorithms for NP-complete problems. 
+
+# Graphs and graph homomorphisms 
+
+Let us start by introducing graphs. Graph $G$ is a pair made out of set of *vertices* $V(G)$ and set
+of *edges* $E(G) \subseteq { V(G) \choose 2 }$. Thus, for the purpose of this post, we talk about simple undirected graphs. Important notion for graphs--which is not *that* well known--are graph homomorphisms. Given a map of graphs $\varphi : V(G) \to V(H)$, we call the map a graph homomorphism if and only if for every edge $uv$ in $E(G)$ we have that $\varphi(u)\varphi(v)$ is an edge of $E(H)$. 
+
+A nice example of importance of graph homomorphisms are homomorphisms into
+cliques $K_k$ (graphs with $k$ vertices where every two are connected).  A
+general map $V(G) \to A$ can be viewed as a $A$-coloring of the vertex set
+$V(G)$ as we are to every vertex from $V(G)$ assigning a single color $a \in
+A$. If ve set $A$ to be a graph, the only constraint there is for a map
+$\varphi G \to K_k$ to be a homomorphism is that the map does not map two
+neighbouring vertices onto the same vertex; let $uv$ be two neighbouring
+vertices, we need $\varphi(u)\varphi(v)$ to be an edge, which happens if and
+only if $\varphi(u) \neq \varphi(v)$. Thus $K_k$-homomorphism correspond 
+to *proper $k$-colorings*, notion studied quite extensively in graph theory.
+
+Another surprising object, which can be described in terms of homomorphisms are
+vertex covers--a subset of graph vertices which cover all the edges.  Given
+graph $H$ with two connected nodes, where one vertex $w$ has a loop (the vertex
+is connected to itself) and the other $i$ does not. Then, any homomorphism
+$\varphi : G \to H$ corresponds to a vertex cover of $G$; consider any edge $uv
+\in E(G)$, then $\varphi(u)\varphi(v) \in E(H)$ which means that at least one
+of the vertices $\varphi(u), \varphi(v)$ needs to be $w \in E(H)$ thus let
+$\varphi^{-1}(w)$ be the vertex cover. It can be easily checked that any vertex
+cover indeed corresponds to a $H$-homomorphism. 
+
+Given such homomorphism notion, one may wonder 
+- Given a graph $G$, how hard is to check that there in fact exists a
+  homomorphism $\varphi: G \to K_3$? 
+- Given an assignment of some cost to some $H$-homomorphisms, how hard is it 
+  to find an optimal homomorphism? 
+
+Both problems prove to be hard e.g. the first corresponds to 3-COL and thus to
+3-SAT in terms of computational difficulty--meaning it is NP-complete. Is
+homomorphism existence checking always NP-complete? A complete classification
+of which homomorphisms are easy and which are hard is due to Hell-Nešetřil
+theorem which states that the so called $H$-coloring (finding a $H$-homomorphism) 
+is in P iff and only if the graph is bipartite, otherwise it is NP-complete. 
+
+# Graph Topology
+
+In this section, we will try te describe canonical subparts of a given graph
+$G$ in terms of *topology*. A general topology $T$ on some set $X$ is a family
+of sets which is closed under finite intersections, is closed under arbitrary
+unions, contains the empty set and contains the whole set $X$. We call the
+elements of $T$ *open sets* over $X$. A canonical example of an topology are
+the real numbers, with open sets being sets which can be created from arbitrary
+unions of open intervals. Another example (which is just generalization of the real line)
+is an euclidian space $\mathbb{R}^{n}$ together with sets which are arbitrary union of 
+some $\delta$-balls i.e. sets of points, which are in the euclidian distance at most
+$\delta$ far from the set's center. 
+
+Let us define a simple topology on graphs, by taking the underlying set $X$ to be the
+disjoint union $V(G) \sqcup E(G)$ and letting a subset $V' \sqcup E'$ be open if and only  
+if $E'$ contains only the vertices from $V'$ (thus the pair $(V',E')$ corresponds to a subgraph $G'$ of the original graph $G$). 
+
+One should note that the just-defined topology is in fact almost discrete and thus very simple. Namely, the continous maps from and to the topology are not that interesting. 
+
+# Presheaves
+
+For those who know category theory, a set presheave is just a contravariant
+functor from some category $C$ into category **Set**. In this case, the
+category $C$ will be the category of open sets $O_X$, where the arrows are the
+inclusions (thus it is just a poset category). 
+
+For those who do not want to know category theory, a set presheave $F$ will be
+two maps, first a map from our topological space, mapping each open set $U
+\subset X$ to *some* set $F(U)$ and a map of inclusions into restrictions i.e.
+for every $U \supseteq V$ we will pick a function $\rho_U,V$ which serves as
+a restriction map of elements from $F(U)$ to some elements of $F(V)$. 
+The presheave needs to satisfy the following rules, $\rho_{U, U}$ is just identity 
+on $F(U)$, and restrictions are associative i.e. for $U \supset V \supset W$ 
+we have that $\rho_{V, W} \circ \rho_{U, V} = \rho_{U, W}$.
+
+As an example, we can take the set presheave which maps each open set 
+$U$ to the set of continous functions from $U$ to $R$, where $\rho_{U,V}$ is a function
+realizing a function restriction i.e. $f \mapsto \left.f\right|_V$.
+
+Given a topology of euclidian space, one can take a set presheave which maps each open 
+set $U$ to the set of differentiable functions on $U$, where $\rho_{U,V}$ are again just
+map restrictions. 
+
+The set presheave we shall investigate, is the $H$-homomorphism presheave $\mathcal{H}$ which will map each open set $G'$ of a graph topology into a set of homomorphisms from $G'$ into $H$ i.e. the set $Hom(G', H)$. As the $\rho_{U, V}$ we once again take the restriction maps. 
+
+# Sheaves 
+
+Sheave
+
+Homomorphism sheaves
+
+# Graph schemes
+
+Schemes
+
+Graphs Schemes
+
+# Treewidth and tree decomposition 
+
+Treewidth and tree decomposition
+
+# Decision problems
+
+So let $\CS$ be a graph scheme with set sheaf $\CF$ over a graph topology of $G$. Let us first look at the problem
+
+Given a graph $G$, decide if $\CF(G)$ is non-empty. 
+
+We will
+
+```
+
+```
+
+# Optimization problems
