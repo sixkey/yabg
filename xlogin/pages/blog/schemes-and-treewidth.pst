@@ -11,8 +11,13 @@ developing graphs algorithms for NP-complete problems.
 
 # Graphs and graph homomorphisms 
 
-Let us start by introducing graphs. Graph $G$ is a pair made out of set of *vertices* $V(G)$ and set
-of *edges* $E(G) \subseteq { V(G) \choose 2 }$. Thus, for the purpose of this post, we talk about simple undirected graphs. Important notion for graphs--which is not *that* well known--are graph homomorphisms. Given a map of graphs $\varphi : V(G) \to V(H)$, we call the map a graph homomorphism if and only if for every edge $uv$ in $E(G)$ we have that $\varphi(u)\varphi(v)$ is an edge of $E(H)$. 
+Let us start by introducing graphs. Graph $G$ is a pair made out of set of
+*vertices* $V(G)$ and set of *edges* $E(G) \subseteq { V(G) \choose 2 }$. Thus,
+for the purpose of this post, we talk about simple undirected graphs. Important
+notion for graphs--which is not *that* well known--are graph homomorphisms.
+Given a map of graphs $\varphi : V(G) \to V(H)$, we call the map a graph
+homomorphism if and only if for every edge $uv$ in $E(G)$ we have that
+$\varphi(u)\varphi(v)$ is an edge of $E(H)$. 
 
 A nice example of importance of graph homomorphisms are homomorphisms into
 cliques $K_k$ (graphs with $k$ vertices where every two are connected).  A
@@ -56,54 +61,94 @@ of sets which is closed under finite intersections, is closed under arbitrary
 unions, contains the empty set and contains the whole set $X$. We call the
 elements of $T$ *open sets* over $X$. A canonical example of an topology are
 the real numbers, with open sets being sets which can be created from arbitrary
-unions of open intervals. Another example (which is just generalization of the real line)
-is an euclidian space $\mathbb{R}^{n}$ together with sets which are arbitrary union of 
-some $\delta$-balls i.e. sets of points, which are in the euclidian distance at most
-$\delta$ far from the set's center. 
+unions of open intervals. Another example (which is just generalization of the
+real line) is an euclidian space $\mathbb{R}^{n}$ together with sets which are
+arbitrary union of some $\delta$-balls i.e. sets of points, which are in the
+euclidian distance at most $\delta$ far from the set's center. 
 
-Let us define a simple topology on graphs, by taking the underlying set $X$ to be the
-disjoint union $V(G) \sqcup E(G)$ and letting a subset $V' \sqcup E'$ be open if and only  
-if $E'$ contains only the vertices from $V'$ (thus the pair $(V',E')$ corresponds to a subgraph $G'$ of the original graph $G$). 
+Let us define a simple topology on graphs, by taking the underlying set $X$ to
+be the disjoint union $V(G) \sqcup E(G)$ and letting a subset $V' \sqcup E'$ be
+open if and only  if $E'$ contains only the vertices from $V'$ (thus the pair
+$(V',E')$ corresponds to a subgraph $G'$ of the original graph $G$). 
 
-One should note that the just-defined topology is in fact almost discrete and thus very simple. Namely, the continous maps from and to the topology are not that interesting. 
+One should note that the just-defined topology is in fact almost discrete and
+thus very simple. Namely, the continous maps from and to the topology are not
+that interesting. 
 
 # Presheaves
 
-For those who know category theory, a set presheave is just a contravariant
+\newcommand\restrict[2]{\left.{#1}\right|_{#2}}
+
+For those who know category theory, a set presheaf is just a contravariant
 functor from some category $C$ into category **Set**. In this case, the
 category $C$ will be the category of open sets $O_X$, where the arrows are the
 inclusions (thus it is just a poset category). 
 
-For those who do not want to know category theory, a set presheave $F$ will be
+For those who do not want to know category theory, a set presheaf $F$ will be
 two maps, first a map from our topological space, mapping each open set $U
 \subset X$ to *some* set $F(U)$ and a map of inclusions into restrictions i.e.
 for every $U \supseteq V$ we will pick a function $\rho_U,V$ which serves as
 a restriction map of elements from $F(U)$ to some elements of $F(V)$. 
-The presheave needs to satisfy the following rules, $\rho_{U, U}$ is just identity 
+The presheaf needs to satisfy the following rules, $\rho_{U, U}$ is just identity 
 on $F(U)$, and restrictions are associative i.e. for $U \supset V \supset W$ 
 we have that $\rho_{V, W} \circ \rho_{U, V} = \rho_{U, W}$.
 
-As an example, we can take the set presheave which maps each open set 
-$U$ to the set of continous functions from $U$ to $R$, where $\rho_{U,V}$ is a function
-realizing a function restriction i.e. $f \mapsto \left.f\right|_V$.
+As an example, we can take the set presheaf which maps each open set $U$ to
+the set of continous functions from $U$ to $R$, where $\rho_{U,V}$ is a
+function realizing a function restriction i.e. $f \mapsto \restrict{f}{V}$.
 
-Given a topology of euclidian space, one can take a set presheave which maps each open 
-set $U$ to the set of differentiable functions on $U$, where $\rho_{U,V}$ are again just
-map restrictions. 
+Given a topology of euclidian space, one can take a set presheaf which maps
+each open set $U$ to the set of differentiable functions on $U$, where
+$\rho_{U,V}$ are again just map restrictions. 
 
-The set presheave we shall investigate, is the $H$-homomorphism presheave $\mathcal{H}$ which will map each open set $G'$ of a graph topology into a set of homomorphisms from $G'$ into $H$ i.e. the set $Hom(G', H)$. As the $\rho_{U, V}$ we once again take the restriction maps. 
+The set presheaf we shall investigate, is the $H$-homomorphism presheaf
+$\mathcal{H}$ which will map each open set $G'$ of a graph topology into a set
+of homomorphisms from $G'$ into $H$ i.e. the set $Hom(G', H)$. As the $\rho_{U,
+V}$ we once again take the restriction maps. 
 
 # Sheaves 
 
-Sheave
+If I would have to pick one piece of important abstractions from the post, I
+would say it is that of sheaves. A set sheaf is a set presheaf which satisfies two  
+important axioms for every open cover $(U_i)_{i \in I}$ of any open set $U$: 
 
-Homomorphism sheaves
+1. **Gluing:** Given a collection of sections $(f_i \in F(U_i))_{i\in I}$ which agree on the intersections i.e. for all $i, j$ from $I$ we have that $\restrict{f_i}{U_i \cap U_j} = \restrict{f_j}{U_i \cap U_j}$, then there exists a section $f$ from $F(U)$ such that it restricts to the sections i.e. for all $i$ from $I$ we have $\restrict{f}{U_i} = f_i$. 
+
+2. **Unique:** Given a sections $f, g \in F(U)$ we have that if they agree on all sets of the open cover, then it is the same section i.e. if for all $i$ from $I$ we have that $\restrict{f}{U_i} = \restrict{g}{U_i}$, then $f = g$. 
+
+Tgluing hus sheaves capture the notion of unique gluing. Take the example of presheaf of continuous functions (a presheaf which to each open set $U$ assigns the set of continuous functions to some topological space e.g. $\mathbb{R}$). Then such presheaf is a sheaf. Uniqueness essentially comes down to functional extensionality (as $(U_i)_{i \in I}$ is a cover, $f$ and $g$ agree on all the points and so are the same function) and a elementary result from topology tells us, that continuous functions can be glued.
+
+We will reserve actual "proving" (read proof sketching) for sheaf, which will
+be of importance to us, the $H$-homomorphism sheaf $\mathcal{H}$--a sheaf which
+to every subgraph $G'$ of $G$ assigns the set of homomorphisms from $G'$ to $H$.
+
+First, let us show that the uniqueness axiom holds. Take an open cover
+$(G_i)_{i \in I}$ of our graph $G$ and two homomorphisms $\varphi, \psi: G \to
+H$. They are equal if and only if they assign to every vertex from $V(G)$ the
+same vertex in $V(H)$. But every vertex $v$ belongs to some $G_i$ (as they
+cover $G$).  Thus as $\restrict{\varphi}{G_i} = \restrict{\psi}{G_i}$ we have
+$\varphi(v) = \psi(v)$ and we are done. 
+
+Second, we need to show the gluing. So let $(G_i)_{i \in I}$ be an open cover
+of $G$ and let $(\varphi_i)_{i \in I}$ be $H$-homomorphisms which agree on the
+intersections.  Then let $\varphi$ be the function which is created by gluing
+the underlying functions of all $\varphi_i$. We need to check that this is a
+homomorphism. Let $uv \in E(G)$ be an edge. As $(G_i)$ is an open cover, there
+is a graph $G_i$ which contains the edge and both vertices of the edge. Thus
+$\varphi(uv) = \restrict{\varphi}{G_i}(uv) = \varphi_i(uv) \in E(H)$ as
+$\varphi_i$ is a homomorphism. It is now clear why the topology is defined as
+is because we need the cover to contain a single open set which contains the
+edge. 
+
+This means our $H$-homomorphism presheaf is indeed a sheaf. 
 
 # Graph schemes
 
-Schemes
+The final definition in the geometry direction is that of *scheme*. The definition is very simple. A scheme is a set $X$ together with a topology $T$ and a sheaf from T. 
 
-Graphs Schemes
+As an example, one can again take a topological space together with sheaf of real-valued continuous functions, differentiable manifold or graph with graph topology and a $H$-homomorphism sheaf, which we will call a homomorphism scheme. 
+
+Given a scheme $\mathcal{S}$
 
 # Treewidth and tree decomposition 
 
