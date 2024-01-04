@@ -1,169 +1,162 @@
 ---
 title: Graph Schemes and Treewidth
+image: public/graph.png
 ---
 
-It is often the case while studying a new piece of math, that 
-one starts to see the piece of math in everything. In todays 
-episode of halucinations of abstract nonsense in computer science,
-we shall look at the connection between schemes--notion often used 
-in algebraic geometry--and treewidth decomposition--a tool used for 
-developing graphs algorithms for NP-complete problems. 
+It is often the case while studying a new piece of math that one starts to see the piece of math in everything. In todays episode of halucinations of abstract nonsense in computer science, we shall look at the connection between schemes--notion often used in algebraic geometry--and treewidth decomposition--a tool used for developing "efficient" algorithms for NP-complete problems on graphs. 
 
 # Graphs and graph homomorphisms 
 
-Let us start by introducing graphs. Graph $G$ is a pair made out of set of
-*vertices* $V(G)$ and set of *edges* $E(G) \subseteq { V(G) \choose 2 }$. Thus,
-for the purpose of this post, we talk about simple undirected graphs. Important
-notion for graphs--which is not *that* well known--are graph homomorphisms.
-Given a map of graphs $\varphi : V(G) \to V(H)$, we call the map a graph
-homomorphism if and only if for every edge $uv$ in $E(G)$ we have that
-$\varphi(u)\varphi(v)$ is an edge of $E(H)$. 
+Let us start by introducing graphs. Graph $G$ is a set of *vertices* $V(G)$ together with a set of *edges* $E(G) \subseteq { V(G) \choose 2 }$. Thus, for the purpose of this post, we talk about simple undirected graphs (although it is not difficult to generalize the discussion to different graph classes; for the purposes of this post, it is fine to work with an intuitive definition of vertices with edges). Important notion (although quite underrated) for graphs are graph homomorphisms.  Given a vertex map $\varphi : V(G) \to V(H)$, we call the map a graph homomorphism if and only if for every edge $uv$ in $E(G)$, we have that $\varphi(u)\varphi(v)$ is an edge of $E(H)$. Thus it is a vertex map, where  the adjacency is preserved in *one* direction, i.e, edges are mapped to edges but there are no conditions for vertex pairs which are non-adjacent.
 
-A nice example of importance of graph homomorphisms are homomorphisms into
-cliques $K_k$ (graphs with $k$ vertices where every two are connected).  A
-general map $V(G) \to A$ can be viewed as a $A$-coloring of the vertex set
-$V(G)$ as we are to every vertex from $V(G)$ assigning a single color $a \in
-A$. If ve set $A$ to be a graph, the only constraint there is for a map
-$\varphi G \to K_k$ to be a homomorphism is that the map does not map two
-neighbouring vertices onto the same vertex; let $uv$ be two neighbouring
-vertices, we need $\varphi(u)\varphi(v)$ to be an edge, which happens if and
-only if $\varphi(u) \neq \varphi(v)$. Thus $K_k$-homomorphism correspond 
-to *proper $k$-colorings*, notion studied quite extensively in graph theory.
+A nice example of importance of graph homomorphisms are homomorphisms into cliques $K_k$ (graphs with $k$ vertices where every two are adjacent).  A general set map $V(G) \to A$ can be viewed as a $A$-coloring of the vertex set $V(G)$ as we are assigning to every vertex from $V(G)$ a color $a \in A$. If we set $A$ to be a graph, the only constraint there is for a map $\varphi: G \to K_k$ to be a homomorphism is that the map does not map two neighbouring vertices onto the same vertex; let $uv$ be two neighbouring vertices, we need $\varphi(u)\varphi(v)$ to be an edge, which happens if and only if $\varphi(u) \neq \varphi(v)$. Thus $K_k$-homomorphism correspond to *proper $k$-colorings*, notion studied quite extensively in graph theory.
 
-Another surprising object, which can be described in terms of homomorphisms are
-vertex covers--a subset of graph vertices which cover all the edges.  Given
-graph $H$ with two connected nodes, where one vertex $w$ has a loop (the vertex
-is connected to itself) and the other $i$ does not. Then, any homomorphism
-$\varphi : G \to H$ corresponds to a vertex cover of $G$; consider any edge $uv
-\in E(G)$, then $\varphi(u)\varphi(v) \in E(H)$ which means that at least one
-of the vertices $\varphi(u), \varphi(v)$ needs to be $w \in E(H)$ thus let
-$\varphi^{-1}(w)$ be the vertex cover. It can be easily checked that any vertex
-cover indeed corresponds to a $H$-homomorphism. 
+Another surprising object, which can be described in terms of homomorphisms, is the notion of a vertex cover--a subset of graph vertices which cover all the edges.  Given graph $H$ with two connected nodes, where one vertex $w$ has a loop (the vertex is connected to itself) and the other $i$ does not. Then, any homomorphism $\varphi : G \to H$ corresponds to a vertex cover of $G$; consider any edge $uv \in E(G)$, then $\varphi(u)\varphi(v) \in E(H)$ which means that at least one of the vertices $\varphi(u), \varphi(v)$ needs to be $w \in E(H)$ thus $\varphi^{-1}(w)$ is a vertex cover. It can be easily checked that any vertex cover indeed corresponds to an $H$-homomorphism. 
 
-Given such homomorphism notion, one may wonder 
-- Given a graph $G$, how hard is to check that there in fact exists a
-  homomorphism $\varphi: G \to K_3$? 
+Given such homomorphism notion, one may wonder:
+
+- Given a graph $G$, how hard is to check that there exists a
+  homomorphism $\varphi: G \to K_3$ or $\varphi: G \to H$ for general $H$? 
 - Given an assignment of some cost to some $H$-homomorphisms, how hard is it 
   to find an optimal homomorphism? 
 
-Both problems prove to be hard e.g. the first corresponds to 3-COL and thus to
-3-SAT in terms of computational difficulty--meaning it is NP-complete. Is
-homomorphism existence checking always NP-complete? A complete classification
-of which homomorphisms are easy and which are hard is due to Hell-Nešetřil
-theorem which states that the so called $H$-coloring (finding a $H$-homomorphism) 
-is in P iff and only if the graph is bipartite, otherwise it is NP-complete. 
+Both problems prove to be hard, e.g., the first problem corresponds to 3-COL and thus to 3-SAT in terms of computational difficulty--meaning it is NP-complete. Is homomorphism existence checking always NP-complete? A complete classification of homomorphism finding difficulty is due to Hell-Nešetřil theorem which states that $H$-coloring problem (finding an $H$-homomorphism) is in P if and only if the graph is bipartite, otherwise it is NP-complete. 
 
 # Graph Topology
 
-In this section, we will try te describe canonical subparts of a given graph
-$G$ in terms of *topology*. A general topology $T$ on some set $X$ is a family
-of sets which is closed under finite intersections, is closed under arbitrary
-unions, contains the empty set and contains the whole set $X$. We call the
-elements of $T$ *open sets* over $X$. A canonical example of an topology are
-the real numbers, with open sets being sets which can be created from arbitrary
-unions of open intervals. Another example (which is just generalization of the
-real line) is an euclidian space $\mathbb{R}^{n}$ together with sets which are
-arbitrary union of some $\delta$-balls i.e. sets of points, which are in the
-euclidian distance at most $\delta$ far from the set's center. 
+In this section, we will try to describe canonical subparts of a given graph $G$ in terms of *topology*. A general topology $T$ on some set $X$ is a family of sets which is closed under finite intersections, under arbitrary unions, contains the empty set, and contains the whole set $X$. One should think of topology as a set with canonical regions or segments.  We call elements of $T$ *open sets* over $X$. A popular example of a topology is the real line, with open sets being sets which can be created from arbitrary unions of open intervals. Another example (which is just generalization of the real line) is a Euclidian space $\mathbb{R}^{n}$ together with sets which are arbitrary union of some $\delta$-balls, i.e., sets of points, which are in the euclidian distance at most $\delta$ far from the set's center. 
 
-Let us define a simple topology on graphs, by taking the underlying set $X$ to
-be the disjoint union $V(G) \sqcup E(G)$ and letting a subset $V' \sqcup E'$ be
-open if and only  if $E'$ contains only the vertices from $V'$ (thus the pair
-$(V',E')$ corresponds to a subgraph $G'$ of the original graph $G$). 
-
-One should note that the just-defined topology is in fact almost discrete and
-thus very simple. Namely, the continous maps from and to the topology are not
-that interesting. 
+Let us define a simple topology on graphs, by taking the underlying set $X$ to be the disjoint union $V(G) \sqcup E(G)$ and letting a subset $V' \sqcup E'$ be open if and only  if $E'$ contains only the vertices from $V'$ (thus the pair $(V',E')$ corresponds to a subgraph $G'$ of the original graph $G$). 
 
 # Presheaves
 
 \newcommand\restrict[2]{\left.{#1}\right|_{#2}}
 
-For those who know category theory, a set presheaf is just a contravariant
-functor from some category $C$ into category **Set**. In this case, the
-category $C$ will be the category of open sets $O_X$, where the arrows are the
-inclusions (thus it is just a poset category). 
+For those who know category theory, a set presheaf is just a contravariant functor from some category $C$ into category **Set**. In this case, the category $C$ will be the category of open sets $O_X$, where the arrows are the inclusions (thus it is just a poset category). 
 
-For those who do not want to know category theory, a set presheaf $F$ will be
-two maps, first a map from our topological space, mapping each open set $U
-\subset X$ to *some* set $F(U)$ and a map of inclusions into restrictions i.e.
-for every $U \supseteq V$ we will pick a function $\rho_U,V$ which serves as
-a restriction map of elements from $F(U)$ to some elements of $F(V)$. 
-The presheaf needs to satisfy the following rules, $\rho_{U, U}$ is just identity 
-on $F(U)$, and restrictions are associative i.e. for $U \supset V \supset W$ 
-we have that $\rho_{V, W} \circ \rho_{U, V} = \rho_{U, W}$.
+For those who do not want to know category theory, a set presheaf $F$ will be a pair of maps. First, a map from our topological space mapping each open set $U \subseteq X$ to *some* set $F(U)$ and a map of inclusions into restrictions, i.e., for every $U \supseteq V$ we will pick a function $\rho_{U,V}$ which serves as a restriction map of elements from $F(U)$ to some elements of $F(V)$.  The elements of $F(U)$ are often called *sections* at $U$. Restriction maps thus send for $U \supseteq V$ a section at $U$ to some section at $V$.  The presheaf needs to satisfy the following rules, $\rho_{U, U}$ is just identity on $F(U)$, and restrictions compose, i.e., for $U \supseteq V \supseteq W$ we have that $\rho_{V, W} \circ \rho_{U, V} = \rho_{U, W}$. It is important to note that there is no semantic requirement for the sets $F(U)$, i.e., the sets $F(U)$ can be whatever you like, as long as you can find meaningful restrictions maps. 
 
-As an example, we can take the set presheaf which maps each open set $U$ to
-the set of continous functions from $U$ to $R$, where $\rho_{U,V}$ is a
-function realizing a function restriction i.e. $f \mapsto \restrict{f}{V}$.
+That being said, there are some canonical examples such as the set presheaf which maps each open set $U$ to the set of continous functions from $U$ to $\mathbb{R}$, where $\rho_{U,V}$ is a map realizing the appropriate function restriction, i.e., map which sends the continuous function $f: U \to \mathbb{R}$ to $\restrict{f}{V} : V \to \mathbb{R}$ which is continuous. 
 
-Given a topology of euclidian space, one can take a set presheaf which maps
-each open set $U$ to the set of differentiable functions on $U$, where
-$\rho_{U,V}$ are again just map restrictions. 
+Given a topology of Euclidian space, one can take a set presheaf which maps each open set $U$ to the set of differentiable functions on $U$, where $\rho_{U,V}$ are again just map restrictions. 
 
-The set presheaf we shall investigate, is the $H$-homomorphism presheaf
-$\mathcal{H}$ which will map each open set $G'$ of a graph topology into a set
-of homomorphisms from $G'$ into $H$ i.e. the set $Hom(G', H)$. As the $\rho_{U,
-V}$ we once again take the restriction maps. 
+The set presheaf we shall investigate is the $H$-homomorphism presheaf $\mathcal{H}$ that maps each open set $G'$ of a graph topology into a set of homomorphisms from $G'$ into $H$, i.e., the map $G' \mapsto \text{Hom}(G', H)$.  As the $\rho_{U, V}$ we once again take the restriction maps. 
 
 # Sheaves 
 
-If I would have to pick one piece of important abstractions from the post, I
-would say it is that of sheaves. A set sheaf is a set presheaf which satisfies two  
-important axioms for every open cover $(U_i)_{i \in I}$ of any open set $U$: 
+If I would have to pick one piece of important abstractions from the post, I would say it is that of sheaves. A set sheaf is a set presheaf which satisfies two  important axioms for every open cover $(U_i)_{i \in I}$ of any open set $U$: 
 
-1. **Gluing:** Given a collection of sections $(f_i \in F(U_i))_{i\in I}$ which agree on the intersections i.e. for all $i, j$ from $I$ we have that $\restrict{f_i}{U_i \cap U_j} = \restrict{f_j}{U_i \cap U_j}$, then there exists a section $f$ from $F(U)$ such that it restricts to the sections i.e. for all $i$ from $I$ we have $\restrict{f}{U_i} = f_i$. 
+1. **Gluing:** Let $(f_i \in F(U_i))_{i\in I}$ be a collection of sections that agree on the intersections, i.e., for all $i, j$ from $I$ we have that $\restrict{f_i}{U_i \cap U_j} = \restrict{f_j}{U_i \cap U_j}$. Then, there exists a section $f$ from $F(U)$ such that it restricts to the sections, i.e., for all $i$ from $I$ we have $\restrict{f}{U_i} = f_i$. 
 
-2. **Unique:** Given a sections $f, g \in F(U)$ we have that if they agree on all sets of the open cover, then it is the same section i.e. if for all $i$ from $I$ we have that $\restrict{f}{U_i} = \restrict{g}{U_i}$, then $f = g$. 
+2. **Unique:** Given sections $f, g \in F(U)$ we have that if they agree on all sets of the open cover, then it is the same section, i.e., if for all $i$ from $I$ we have that if $\restrict{f}{U_i} = \restrict{g}{U_i}$, then $f = g$. 
 
-Tgluing hus sheaves capture the notion of unique gluing. Take the example of presheaf of continuous functions (a presheaf which to each open set $U$ assigns the set of continuous functions to some topological space e.g. $\mathbb{R}$). Then such presheaf is a sheaf. Uniqueness essentially comes down to functional extensionality (as $(U_i)_{i \in I}$ is a cover, $f$ and $g$ agree on all the points and so are the same function) and a elementary result from topology tells us, that continuous functions can be glued.
+Thus sheaves capture the notion of unique gluing. Take the example of presheaf of continuous functions (a presheaf which to each open set $U$ assigns the set of continuous functions to some topological space, e.g., $\mathbb{R}$). Then such presheaf is a sheaf. Uniqueness essentially comes down to functional extensionality (as $(U_i)_{i \in I}$ is a cover, $f$ and $g$ agree on all the points and so are the same function) and a elementary result from topology tells us, that continuous functions can be glued to continuous functions.
 
-We will reserve actual "proving" (read proof sketching) for sheaf, which will
-be of importance to us, the $H$-homomorphism sheaf $\mathcal{H}$--a sheaf which
-to every subgraph $G'$ of $G$ assigns the set of homomorphisms from $G'$ to $H$.
+We will reserve actual "proving" (read proof sketching) for sheaf that will be of importance to us, the $H$-homomorphism sheaf $\mathcal{H}$--a sheaf, which to every subgraph $G'$ of $G$ assigns the set of homomorphisms from $G'$ to $H$.  The proof is very easy and gives intuition behind the two axioms. 
 
-First, let us show that the uniqueness axiom holds. Take an open cover
-$(G_i)_{i \in I}$ of our graph $G$ and two homomorphisms $\varphi, \psi: G \to
-H$. They are equal if and only if they assign to every vertex from $V(G)$ the
-same vertex in $V(H)$. But every vertex $v$ belongs to some $G_i$ (as they
-cover $G$).  Thus as $\restrict{\varphi}{G_i} = \restrict{\psi}{G_i}$ we have
-$\varphi(v) = \psi(v)$ and we are done. 
+First, let us show that the uniqueness axiom holds. Take an open cover $(G_i)_{i \in I}$ of our graph $G$ and two homomorphisms $\varphi, \psi: G \to H$. They are equal if and only if they assign to every vertex from $V(G)$ the same vertex in $V(H)$. But every vertex $v$ belongs to some $G_i$ (as they cover $G$).  Thus as $\restrict{\varphi}{G_i} = \restrict{\psi}{G_i}$ we have $\varphi(v) = \psi(v)$ and we are done. 
 
-Second, we need to show the gluing. So let $(G_i)_{i \in I}$ be an open cover
-of $G$ and let $(\varphi_i)_{i \in I}$ be $H$-homomorphisms which agree on the
-intersections.  Then let $\varphi$ be the function which is created by gluing
-the underlying functions of all $\varphi_i$. We need to check that this is a
-homomorphism. Let $uv \in E(G)$ be an edge. As $(G_i)$ is an open cover, there
-is a graph $G_i$ which contains the edge and both vertices of the edge. Thus
-$\varphi(uv) = \restrict{\varphi}{G_i}(uv) = \varphi_i(uv) \in E(H)$ as
-$\varphi_i$ is a homomorphism. It is now clear why the topology is defined as
-is because we need the cover to contain a single open set which contains the
-edge. 
+Second, we need to show the gluing. So let $(G_i)_{i \in I}$ be an open cover of $G$ and let $(\varphi_i)_{i \in I}$ be $H$-homomorphisms that agree on the intersections.  Let $\varphi$ be the function which is created by gluing the underlying functions of all $\varphi_i$. We need to check that this is a homomorphism. Let $uv \in E(G)$ be an edge. As $(G_i)_{i \in I}$ is an open cover, there is a graph $G_i$ which contains the edge and both vertices of the edge. Thus $\varphi(uv) = \restrict{\varphi}{G_i}(uv) = \varphi_i(uv) \in E(H)$ as $\varphi_i$ is a homomorphism. It is now clear why the topology is defined as is, because we need the cover to contain a single open set which contains both the edge and the vertices. 
 
 This means our $H$-homomorphism presheaf is indeed a sheaf. 
 
 # Graph schemes
 
-The final definition in the geometry direction is that of *scheme*. The definition is very simple. A scheme is a set $X$ together with a topology $T$ and a sheaf from T. 
+The final definition from the geometry world is that of a *scheme*. The definition is very simple. A scheme is a set $X$ together with a topology $T$ and a sheaf from T. 
 
-As an example, one can again take a topological space together with sheaf of real-valued continuous functions, differentiable manifold or graph with graph topology and a $H$-homomorphism sheaf, which we will call a homomorphism scheme. 
+Let me note that schemes have usually a richer sheaf than just set sheaf, e.g.,  a group or ring sheaf. These sheaves require the sets of sections $F(U)$ to be endowed  with the structure of a group or a ring. In this post, we require only set sheaf. 
 
-Given a scheme $\mathcal{S}$
+As an example, one can again take a topological space together with sheaf of real-valued continuous functions, differentiable manifold, or graph with graph topology and a $H$-homomorphism sheaf, which we will call a *graph scheme*. 
+
+Given a scheme $\mathcal{S}$ on space $X$ it is natural to ask whether the set of sections $F(X)$ is non-empty, how many elements does such set have, or given a cost function $f: \bigcup_{U \in \mathcal{O}_X}F(U) \to \mathbb{R}$ what section in $F(X)$ minimizes/maximizes the function.
+
+As an example, given a graph scheme with triangle-homomorphism sheaf, existence of section in  $F(G)$ corresponds to a 3-coloring of the graph $G$; given a graph scheme with W-homomorphism sheaf and a function $f$ which assign to a $W$-homomorphism the number of vertices assigned to the vertex $W$, optimization of $f$ over $F(G)$ corresponds to finding the minimimum vertex cover. Thus scheme-problems over graph schemes are natural computational problems. Does the scheme/sheaf formulation bring us any insight?  To answer, we need to discuss the following concept.  
 
 # Treewidth and tree decomposition 
 
-Treewidth and tree decomposition
+Let us first define a tree decomposition. Given a graph $G$, we say that an open cover by *bags* $(B_t)_{t \in T}$ indexed by vertices in a tree $T$ is a tree decomposition if and only if for every $v \in G$ we have that $\{t \in T | v \in B_t \}$ is a connected subtree in $T$. 
+
+The main point being that the bags (a) interact in a tree-like fashion--which allows us to do dynamic programming over the decomposition (b) any interaction over a vertex is localized into a connected part of $T$, and (c) every edge $uv$ is in some bag $B_t$ (as open cover needs to cover not only vertices but also edges).
+
+Treewidth of a graph $G$ then becomes the minimum width of any tree-decomposition, where the width of tree-decomposition is the maximum size of bag a $B_t$ minus one (something something historical mistakes something something).
+
+*Motivation behind the historical mistake:* Any graph $G$ which is a tree, has treewidth 1.
+
+*Example:* Any cycle $C$ has treewidth 2.
+
+*Example:* Any $n$ by $n$ grid has treewidth $n$. 
+
+The motivation behind this post is not to bring any insight into the structural properties of treewidth--even though they are interesting. If you understand the definition that is enough for what follows. Moreover, treatment using schemes clearly shows motivation behind every part of the definition--thus it should lead to *some* intuition.
 
 # Decision problems
 
-So let $\CS$ be a graph scheme with set sheaf $\CF$ over a graph topology of $G$. Let us first look at the problem
+Let us first look at the problem of determining, whether there for a graph $G$ and set sheaf $F$ exists a section $F(G)$. Let us assume that there exists a brute-force algorithm with complexity $f(n)$ which returns all the sections for $G' \subseteq G$ with $n$ vertices. Such brute-force algorithms are usually easy to get but are of course not reasonable for large $n$. That being said, we can still use them, if limit the use to *small* graphs, i.e, small open sets of our target $G$. We can then use the properties of the sheaf, namely the gluing property, to construct a section over the whole graph. For this we thus need two things:
 
-Given a graph $G$, decide if $\CF(G)$ is non-empty. 
+1. A nice open cover of $G$ with small open sets
+2. that are organized in a way that allows us to do a systematic and cheap gluing. 
 
-We will
+But that is precisely the motivation behind the tree-decomposition of a graph.  The first step of the algorithm is thus to obtain a nice tree-decomposition.  Let us assume that there exists an algorithm which gives us a rooted tree-decomposition of a graph which achieves the actual treewidth of the graph.  Moreover, let us assume that the indexing tree of the decomposition is binary, i.e., every node has either two or zero children (one can show that such decomposition is always achievable). A tree-decomposition can thus be described by the following type:
 
+```haskell
+data Graph v = Graph { vertices :: Set v, edges :: Set ( Pair v ) }
+
+data TreeDecomposition a = Leaf ( Graph v )
+                         | Node ( Graph v ) 
+                                ( TreeDecomposition v ) 
+                                ( TreeDecomposition v )
 ```
 
+Before discussing the algorithm, let us briefly look at types of the mentioned concepts. Let us start with the geometry.
+
+```haskell
+data Section u s = Section { open :: u, section :: s } deriving Eq
+
+data Sheaf u s = Sheaf { smap     :: u -> Set ( Section u s ),
+                         restrict :: u -> Section u s -> Section u s,
+                         glue     :: Section u s -> Section u s -> Section u s }
+
+data Scheme u s = Scheme u ( Sheaf u s )
 ```
+
+The `Sheaf` type (the most important of the three) contains two type parameters: 
+
+> u: the type of the open sets (you can safely   substitute `Graph v`)
+
+> s: the type parameter of the section (this can be homomorphisms, generic functions, etc.) 
+
+Value of `Sheaf` contains the brute-force algorithm `smap` which to each open set assigns the set of sections (the object mapping part of the sheaf), a function `restrict` which produces restrictions of sections (the inclusion mapping of the sheaf), and finally the gluing function `glue`. Let us get to the algorithm itself.
+
+```haskell
+
+exists ( Scheme graph sheaf ) = nonempty ( existsGo ( treeDecomp graph ) )
+  where 
+    existsGo ( Leaf b )     = smap sheaf b
+    existsGo ( Node b l r ) = 
+      let lSecs = existsGo l 
+          rSecs = existsGo r
+       in filter ( compWith lSecs `fand` compWith rSecs ) ( smap sheaf b )
+
+    compWith sections s = any ( agree s ) sections
+
+    agree a b = let common = intersection ( open a ) ( open b ) 
+                 in restrict sheaf common a == restrict sheaf common b   
+```
+
+One can show using induction over the tree-decomposition that the following invariant holds. If there is a section $s \in F(B_t)$ which is in the set $\text{existsGo}(B_t)$, then there exists a section $\hat{s} \in F(\hat{B_t})$, where $\hat{B_t}$ denotes the union of all bags under $t$. For leaves, the statement is trivial. For interval nodes, section is in $\text{existsGo}(B_t)$ if and only if there exists a section $s_l \in \text{existsGo}(B_l)$ and a section $s_r \in \text{existsGo}(B_r)$ such that $s$ agrees with $s_l$ on their intersection and $s$ agrees with $s_r$ on their intersection.  Due to the fact that $(B_t)_{t \in T}$ is a tree-decomposition, we know that every vertex in $\hat{B_l} \cap B_t$ is contained in $B_l \cap B_t$ (bags which contain a vertex need to be a connected subtree, thus any vertex shared by a bag and its indirect descendant is also shared by the bag and its direct child, i.e., vertex cannot skip a generation). Thus, the section $\hat{s_l} \in F(\hat{B_l})$ from induction hypothesis and $s$ agree on their intersection.  Similarly, we get $\hat{s_r} \in F(\hat{B_r})$. Finally, any vertex shared by $\hat{B_l}$ and $\hat{B_r}$ needs to be in the $B_t$ (again due to connection property of the tree-decomposition) and thus $\hat{s_l}$ and $\hat{s_r}$ agree on their intersection.  We can thus glue the three sections $s$, $\hat{s_l}$, and $\hat{s_r}$ to obtain the desired section $\hat{s} \in F(\hat{B_t})$.  As tree-decomposition is an open-cover of $G$, we have that for the root bag $B_r$ it holds that $\hat{B_r} = G$. Thus a section $s_r \in \text{existsGo}(B_r)$ can be extended to section over $G$. 
+
+Let us show by induction the converse, that is, if there is a section $\hat{s} \in F(\hat{B_t})$, then there is a section $s \in \text{existsGo}(B_t)$ such that $\restrict{\hat{s}}{B_t} = s$.  For leaves, the statement is again trivial. For internal nodes assume $s \in F(\hat{B_t})$. We have that there are restrictions $\hat{s_l} \in F(\hat{B_l})$ and $\hat{s_r} \in F(\hat{B_r})$. From induction hypothesis there are further restrictions $s_l \in \text{existsGo}(B_l)$ and $s_r \in \text{existsGo}(B_r)$. But restriction of $s$ to $B_t$ agrees with $s_l$ and $s_r$ on intersections, thus $\restrict{s}{B_t} \in \text{existsGo}(B_t)$.
+
+Inspecting the complexity of the algorithm reveals that we do $O(f(b)^2)$ work for each bag, where $b$ is the maximum size of all bags (the current bag, the bag of the left child, and the bag of the right child) and $f$ is the complexity of `smap`.  As each bag is handled exactly once, the overall complexity is thus $f'(\text{tw(G)})O(|T|)$, where $\text{tw}(G)$ is the treewidth of the graph, $f'$ is some function which depends on $f$, and $|T|$ is the size of the decomposition. Algorithms with such complexity are called FPT (fixed-parameter tractable) as fixing the maximum treewidth of the input graphs turns $f'(\text{tw(G)})$ into a constant which in turn leads to a polynomial complexity. 
+
+Finally, we have the following two theorems which show that we can *actually* find a reasonable tree-decomposition of a graph. One should note that determining the exact treewidth of a graph is NP-hard.
+
+**Theorem.** [BDDFLP] There exists an algorithm which for graph $G$ with $n$ vertices of treewidth $k$ returns a tree-decomposition of width 5k + 4 in time $2 O(k)n$.
+
+Note that we did not in fact use the `glue` operation provided by the sheaf.  Such operation is needed when we want to *construct* a witness to the existence.  We can do so by adding the $\hat{s}$ information to all sections $s$ in the induction step. 
+
+The above algorithm can thus be used for multitude of problems, where the "only" requirement is to implement the functions needed for the sheaf object. Due to the fact that $H$-homomorphisms are graph sheaves and a lot of problems can be rephrased in terms of $H$-homomorphisms for some $H$, the above algorithm is the core of many treewidth-parametrized algorithms.
+
 
 # Optimization problems
+
+One day.
