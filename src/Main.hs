@@ -53,8 +53,11 @@ data YabgSettings = YabgSettings { srcPath :: FilePath
                                  , defLinks :: [ String ]
                                  , nav :: [ ( String, String ) ] }
 
+type BlockDirArgs = [ String ]
+
 data YabgBlock = PDoc P.Pandoc
-               | InlineDir [ String ] deriving Show
+               | InlineDir [ String ]
+               | BlockDir BlockDirArgs [ Text ] deriving Show
 
 data YabgDoc = YabgDoc PostMeta [ YabgBlock ] deriving Show
 
@@ -100,12 +103,25 @@ post :: PostMeta -> H.Html -> Post
 post meta content = Post { meta = meta
                          , content = content }
 
+
 -- Path -----------------------------------------------------------------------
 
 fromRoot :: YabgSettings -> String -> String
-fromRoot sttngs = ( rootPath sttngs </> ) 
+fromRoot sttngs = ( rootPath sttngs </> )
 
--- Rendering ------------------------------------------------------------------
+imagePath :: YabgSettings -> PostMeta -> Maybe String
+imagePath sttngs meta = fromRoot sttngs <$> image meta
+
+postUrl :: YabgSettings -> PostMeta -> String
+postUrl sttngs pMeta = changeExt "html" $ fromRoot sttngs $ postPath pMeta
+
+-- Generic Components ---------------------------------------------------------
+
+maybeElement :: Maybe H.Html -> H.Html
+maybeElement ( Just x ) = x
+maybeElement Nothing = pure ()
+
+-- Components -----------------------------------------------------------------
 
 comment :: H.Html -> H.Html
 comment = H.em ! A.class_ "comment"
@@ -115,9 +131,6 @@ postTitle = H.h1 . H.toHtml
 
 postHeader :: Post -> H.Html
 postHeader = postTitle . title . meta
-
-imagePath :: YabgSettings -> PostMeta -> Maybe String
-imagePath sttngs meta = fromRoot sttngs <$> image meta
 
 sideBar :: YabgSettings -> Post -> Maybe H.Html
 sideBar sttngs post = do
@@ -130,16 +143,13 @@ renderNavigation links = H.ul ! A.id "nav" $
     forM_ links $ \ ( text, url ) ->
         H.li $ H.a ! A.href ( H.stringValue url ) $ H.toHtml text
 
-postUrl :: YabgSettings -> PostMeta -> String
-postUrl sttngs pMeta = changeExt "html" $ fromRoot sttngs $ postPath pMeta
-
 listLibrary :: YabgSettings -> [ PostMeta ] -> H.Html
 listLibrary sttngs [] = comment "this library is empty"
 listLibrary sttngs posts = H.div ! A.class_ "list-lib" $ mapM_ listPost posts
   where
     listPost :: PostMeta -> H.Html
-    listPost post = H.div ! A.class_ "list-lib-tile" $ 
-        H.a ! A.href ( H.stringValue ( postUrl sttngs post ) ) $ do 
+    listPost post = H.div ! A.class_ "list-lib-tile" $
+        H.a ! A.href ( H.stringValue ( postUrl sttngs post ) ) $ do
             H.p ! A.class_ "tile-title" $ H.toHtml ( title post )
             H.p ! A.class_ "tile-desc" $ H.toHtml ( desc post )
 
@@ -148,7 +158,7 @@ imageLibrary sttngs [] = comment "this library is empty"
 imageLibrary sttngs posts = H.div ! A.class_ "image-lib" $ mapM_ imagePost posts
   where
     garImagePath :: PostMeta -> String
-    garImagePath meta = fromMaybe ( fromRoot sttngs "public/square.png" ) 
+    garImagePath meta = fromMaybe ( fromRoot sttngs "public/square.png" )
                                   ( imagePath sttngs meta )
     imagePost :: PostMeta -> H.Html
     imagePost post = H.a ! A.href ( H.stringValue $ postUrl sttngs post )
@@ -158,9 +168,18 @@ imageLibrary sttngs posts = H.div ! A.class_ "image-lib" $ mapM_ imagePost posts
         H.p ! A.class_ "image-lib-tile-fg"
             $ H.toHtml $ title post
 
-maybeElement :: Maybe H.Html -> H.Html
-maybeElement ( Just x ) = x
-maybeElement Nothing = pure ()
+divTable :: String -> [ String ] -> [ String ] -> [ String ] -> H.Html
+divTable tableCls rows cols lns = H.div ! A.class_ ( H.stringValue tableCls ) $ go rows lns
+  where
+    c = length cols
+    go :: [ String ] -> [ String ] -> H.Html
+    go _ [] = pure ()
+    go ( row : rowRest ) go_lines =
+        let ( cur, nxt ) = splitAt c go_lines
+         in do H.div ! A.class_ ( H.stringValue row ) $ do
+                    mapM_ ( \( cls, l ) -> H.div ! A.class_ ( H.stringValue cls ) $ H.string l ) $ zip cols cur
+               go ( rowRest ++ [ row ] ) nxt
+    go _ _ = undefined
 
 renderPost :: YabgSettings -> Post -> H.Html
 renderPost settings post = H.html $ do
@@ -190,7 +209,7 @@ yabgWriterOptions = P.def{ P.writerHTMLMathMethod = P.MathJax P.defaultMathJaxUR
 yabgReaderOptions :: P.ReaderOptions
 yabgReaderOptions = P.def{ P.readerExtensions = P.pandocExtensions }
 
-type ReadPostMonad = RWST () [ YabgBlock ] [ Text ] YabgMonad
+type ReadPostMonad = RWST () [ YabgBlock ] ( [ Text ], [ ( BlockDirArgs, [ Text ] ) ] ) YabgMonad
 
 parseMarkdown :: Text -> YabgMonad P.Pandoc
 parseMarkdown text = liftIO $ do
@@ -198,6 +217,10 @@ parseMarkdown text = liftIO $ do
 
 postSrc :: PostMeta -> YabgMonad FilePath
 postSrc postMeta = asks ( ( </> postPath postMeta ) . srcPath . settings )
+
+onHead :: ( a -> a ) -> [ a ] -> [ a ]
+onHead f ( x : xs ) = f x : xs
+onHead f _ = undefined
 
 readPost :: PostMeta -> YabgMonad YabgDoc
 readPost postMeta = do
@@ -207,30 +230,49 @@ readPost postMeta = do
     where
         flushLines :: ReadPostMonad ()
         flushLines = do
-            lns <- get
+            lns <- fst <$> get
             unless ( null lns ) $ do
                 doc <- lift $ parseMarkdown ( DT.unlines . reverse $ lns )
-                modify $ const []
+                modify $ first $ const []
                 tell . pure $ PDoc doc
+        flushBlockDir :: ReadPostMonad ()
+        flushBlockDir = do
+            ( arguments, cont ) <- head . snd <$> get
+            tell $ pure $ BlockDir arguments ( reverse cont )
+            modify $ second tail
+            return ()
         goText :: Text -> YabgMonad YabgDoc
         goText text = do
-            ( _, _, blocks ) <- ( \x -> runRWST x () [] ) $ do
+            ( _, _, blocks ) <- ( \x -> runRWST x () ( [], [] ) ) $ do
                 mapM_ go ( DT.lines text )
                 lns <- get
                 flushLines
             return $ YabgDoc postMeta blocks
         go :: Text -> ReadPostMonad ()
-        go line =
-            if "%%%" `isPrefixOf` line then do
+        go line
+            | "%%[" `isPrefixOf` line = do
+               let cmnd = map ( unpack . trim ) $ split ( == ',' )
+                                                ( trim . DT.drop 3 $ line )
+               flushLines
+               modify $ second ( ( cmnd, [] ) : )
+               return ()
+            | "%%]" `isPrefixOf` line = do
+               flushBlockDir
+               return ()
+            | "%%%" `isPrefixOf` line = do
                let cmnd = map unpack $ split ( == ' ' )
                                                 ( trim . DT.drop 3 $ line )
                flushLines
                tell $ pure $ InlineDir cmnd
                return ()
-            else do
-               modify ( line : )
+            | otherwise = do
+               stck <- snd <$> get
+               if null stck
+                  then modify $ first ( line : )
+                  else modify $ second $ onHead $ second ( line : )
 
 strReplace og nw = map ( \e -> if e == og then nw else e )
+
 
 documentToPost :: YabgDoc -> YabgMonad Post
 documentToPost ( YabgDoc meta blocks ) = do
@@ -268,6 +310,9 @@ documentToPost ( YabgDoc meta blocks ) = do
         go ( InlineDir ( "list-library" : title : rest ) ) =
             postList ( parseTitle title ) listLibrary rest
         go ( InlineDir x ) = error $ "undefined yabg command: " ++ show x
+        go ( BlockDir ( "div-table" : r : c : tableClass : classes ) text ) =
+            let ( rows, cols ) = splitAt ( read r :: Int ) classes
+             in do tell $ divTable tableClass rows cols ( map unpack text )
         go ( PDoc document ) =
             do html <- liftIO $ P.runIOorExplode $
                  P.writeHtml5 yabgWriterOptions document
@@ -338,9 +383,9 @@ data Argv = Argv
     }
 
 argumentParser :: Parser Argv
-argumentParser = Argv 
-    <$> strOption ( long "rootpath" 
-                 <> metavar "ROOTPATH" 
+argumentParser = Argv
+    <$> strOption ( long "rootpath"
+                 <> metavar "ROOTPATH"
                  <> help "The rootpath, e.g. / or /~xkucerak" )
     <*> switch
           ( long "dev"
@@ -349,21 +394,22 @@ argumentParser = Argv
 
 argumentParserInfo :: ParserInfo Argv
 argumentParserInfo = info ( argumentParser <**> helper )
-    ( fullDesc 
+    ( fullDesc
     <> progDesc "Build a site using yet another blog generator." )
 
 main :: IO ()
 main = do print "yabg"
           args <- execParser argumentParserInfo
-          let root = aRootPath args 
+          let root = aRootPath args
           runYabgMonad yabgPipeline
                        YabgSettings { srcPath = "xlogin"
                                     , dstPath = "bin"
                                     , rootPath = root
                                     , dev = aDev args
-                                    , dirsToCopy = [ ( "xlogin/public", "public" ) 
+                                    , dirsToCopy = [ ( "xlogin/public", "public" )
                                                    , ( "xlogin/data", "" ) ]
-                                    , defLinks = [ root </> "public/index.css" ]
+                                    , defLinks = [ root </> "public/bootstrap.min.css"
+                                                 , root </> "public/index.css" ]
                                     , nav = [ ( "xkucerak", root </> "" )
                                             , ( "uni", root </> "uni" )
                                             , ( "blog", root </> "blog" )
