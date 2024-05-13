@@ -366,4 +366,5 @@ main = do print "yabg"
                                     , defLinks = [ root </> "public/index.css" ]
                                     , nav = [ ( "xkucerak", root </> "" )
                                             , ( "uni", root </> "uni" )
+                                            , ( "blog", root </> "blog" )
                                             ] } []

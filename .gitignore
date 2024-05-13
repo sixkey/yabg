@@ -8,3 +8,6 @@
 !xlogin/pages
 !xlogin/pages/**
 !xlogin/public/*
+!scripts
+!scripts/release.sh
+!scripts/debug.sh
