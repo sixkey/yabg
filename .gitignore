@@ -15,3 +15,5 @@
 !scripts
 !scripts/release.sh
 !scripts/debug.sh
+
+!README.md
