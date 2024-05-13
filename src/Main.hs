@@ -193,13 +193,19 @@ renderPost settings post = H.html $ do
               ( defLinks settings )
     H.body $ do
         H.div ! A.id "root" $ do
-            H.div ! A.id "left-wing" $
-                maybeElement $ sideBar settings post
-            H.div ! A.id "main-body" $ do
-                H.div ! A.id "title-nav" $ do
-                    postHeader post
-                    renderNavigation ( nav settings )
-                content post
+            H.div ! A.id "content-root" $ do
+                H.div ! A.id "left-wing" $
+                    maybeElement $ sideBar settings post
+                H.div ! A.id "main-body" $ do
+                    H.div ! A.id "title-nav" $ do
+                        postHeader post
+                        renderNavigation ( nav settings )
+                    content post
+            H.footer $ do 
+                H.div ! A.class_ "footer-text" $ do 
+                    H.div $ H.string "made with ❤️ at Brno"
+                    H.div $ H.a ! A.href ( H.stringValue "https://github.com/sixkey/yabg" ) $ 
+                            H.string "github"
 
 -- Pipelinining ---------------------------------------------------------------
 
