@@ -1,13 +1,17 @@
 *
 
 !.gitignore
+
 !yabg.cabal
+
 !src
 !src/*.hs
+
 !xlogin
 !xlogin/pages
 !xlogin/pages/**
 !xlogin/public/*
+
 !scripts
 !scripts/release.sh
 !scripts/debug.sh
