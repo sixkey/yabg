@@ -1,11 +1,35 @@
 ---
-title: xkucerak
+title: Filip Kučerák
 image: public/index.png
 nav: home
 date: 2023-06-14
 ---
 
-:::: {.quote}
-| *Život je boj.*
-| *-VoZP*
-:::: 
+I am a first year master student at the [Faculty of Informatics, Masaryk
+University](.) working in the
+[DIMEA](https://www.fi.muni.cz/research/laboratories/dimea.html) laboratory
+under the supervision of [Dan Kráľ](https://www.ucw.cz/~kral/). My main
+interests are extremal questions and combinatorial limits. 
+
+## Talks
+
+1. Uniform Turán Density 8/27 at ISTA workshop on November 24th, 2023
+
+## Thesis
+
+1. [Extremal Problems with Uniform Density Constraints](https://is.muni.cz/th/pgzq6/?lang=en)
+
+## Teaching
+
+#### Masaryk University
+
+%%[ div-table, 1, 2, container, row, col-lg-2 nopadding, col-lg-10 nopadding
+Autumn 2023 
+TA in Mathematical Foundations of Computer Science, and Non-Imperative Programming
+Autumn 2022 
+TA in Non-Imperative Programming, and Python Seminar
+Spring 2022 
+TA in Algorithms and Data Structures I, and Principles of low-lever-programming
+Autumn 2021 
+TA in Foundations of Programming
+%%]
