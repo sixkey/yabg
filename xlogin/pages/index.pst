@@ -6,7 +6,7 @@ date: 2023-06-14
 ---
 
 I am a first year master student at the [Faculty of Informatics, Masaryk
-University](.) working in the
+University](https://www.fi.muni.cz) working in the
 [DIMEA](https://www.fi.muni.cz/research/laboratories/dimea.html) laboratory
 under the supervision of [Dan Kráľ](https://www.ucw.cz/~kral/). My main
 interests are extremal questions and combinatorial limits. 
@@ -23,7 +23,7 @@ interests are extremal questions and combinatorial limits.
 
 #### Masaryk University
 
-%%[ div-table, 1, 2, container, row, col-lg-2 nopadding, col-lg-10 nopadding
+%%[ div-table, 1, 2, div-table container, row, col-lg-2 nopadding, col-lg-10 
 Autumn 2023 
 TA in Mathematical Foundations of Computer Science, and Non-Imperative Programming
 Autumn 2022 
@@ -33,3 +33,7 @@ TA in Algorithms and Data Structures I, and Principles of low-lever-programming
 Autumn 2021 
 TA in Foundations of Programming
 %%]
+
+## Contact
+
+xkucerak at fi.muni.cz
