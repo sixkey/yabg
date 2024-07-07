@@ -203,7 +203,7 @@ renderPost settings post = H.html $ do
                     content post
             H.footer $ do 
                 H.div ! A.class_ "footer-text" $ do 
-                    H.div $ H.string "made with ❤️ at Brno"
+                    H.div $ H.string "made with ❤️ in Brno"
                     H.div $ H.a ! A.href ( H.stringValue "https://github.com/sixkey/yabg" ) $ 
                             H.string "github"
 

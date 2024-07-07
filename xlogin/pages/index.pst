@@ -1,19 +1,28 @@
 ---
 title: Filip Kučerák
-image: public/index.png
 nav: home
 date: 2023-06-14
 ---
 
+
+<div class = 'me row'>
+<div class = 'col-lg-5'>
+  <img class = 'me-pic' src='public/ja.jpg'/>
+</div>
+<div class = 'col-lg-7'>
+<p class='me-text'>
 I am a first year master student at the [Faculty of Informatics, Masaryk
 University](https://www.fi.muni.cz) working in the
 [DIMEA](https://www.fi.muni.cz/research/laboratories/dimea.html) laboratory
 under the supervision of [Dan Kráľ](https://www.ucw.cz/~kral/). My main
-interests are extremal questions and combinatorial limits. 
+interests are extremal graph theory and combinatorial limits.
+</p>
+</div>
+</div>
 
 ## Talks
 
-1. Uniform Turán Density 8/27 at ISTA workshop on November 24th, 2023
+1. Uniform Turán Density of 3-uniform Hypergraphs at ISTA workshop on November 24th, 2023
 
 ## Thesis
 
@@ -24,16 +33,18 @@ interests are extremal questions and combinatorial limits.
 #### Masaryk University
 
 %%[ div-table, 1, 2, div-table container, row, col-lg-2 nopadding, col-lg-10 
+Autumn 2024
+TA in Mathematical foundations of computer science, Graph theory, and Mathematical logic.
 Autumn 2023 
-TA in Mathematical Foundations of Computer Science, and Non-Imperative Programming
+TA in Mathematical foundations of computer science, and Non-imperative programming.
 Autumn 2022 
-TA in Non-Imperative Programming, and Python Seminar
+TA in Non-imperative srogramming, and Python seminar.
 Spring 2022 
-TA in Algorithms and Data Structures I, and Principles of low-lever-programming
+TA in Algorithms and Data structures I, and Principles of low-level programming.
 Autumn 2021 
-TA in Foundations of Programming
+TA in Foundations of programming.
 %%]
 
 ## Contact
 
-xkucerak at fi.muni.cz
+kucerak at mail.muni.cz

@@ -90,7 +90,7 @@ The motivation behind this post is not to bring any insight into the structural 
 
 # Decision problems
 
-Let us first look at the problem of deciding if the set of sections over $G$ is nonempty. Let us assume that there exists a brute-force algorithm with complexity $f(n)$ which returns all the sections for $G' \subseteq G$ with $n$ vertices. Such brute-force algorithms are usually easy to get but are, of course, not reasonable for large $n$. That being said, we can still use them if we limit the use to *small* graphs, i.e., small open sets of our target $G$. We can then use the properties of the sheaf, namely the gluing property, to construct a section over the whole graph. For this, we thus need two things:
+Let us first look at the problem of deciding if the set of sections over $G$ is nonempty. Let us assume that there exists a brute-force algorithm with complexity $f(n)$ which returns all sections for $G' \subseteq G$ with $n$ vertices. Such brute-force algorithms are usually easy to get but are, of course, not reasonable for large $n$. That being said, we can still use them if we limit the use to *small* graphs, i.e., small open sets of our target $G$. We can then use the properties of the sheaf, namely the gluing property, to construct a section over the whole graph. For this, we thus need two things:
 
 1. A nice open cover of $G$ with small open sets
 2. that are organized in a way that allows us to do systematic and cheap gluing. 
