@@ -1,0 +1,41 @@
+---
+title: On a flavour of Ramsey Theorem 
+image: public/graph.png
+---
+
+In this post I want to review my favorite flavour of Ramsey Theorem which I learned from Jan Dreier at Algomanet seminar series. Majority of the content here amounts to an exercise one does after reading Lemma 4.3 and 4.4 in [here](https://arxiv.org/pdf/2403.15201).
+
+First, let me state the most classical version of Ramsey one finds in any good course on combinatorics. I write $[n]$ for the set of first $n$ positive intigers and write $X^{(k)}$ for the set of $k$-element subsets of $X$. 
+
+**Theorem** (Ramsey). Let $n, k, r \in \mathbb{N}$ be given. There exists $N \in \mathbb{N}$ such that for any $N$-element set $X$ and coloring $F : X^{(r)} \to [k]$ there exists a color $c \in [k]$ and $n$-element subset $Y \subset X$ such that $F|_{Y^{(r)}} = c$.
+
+The above statement is usually formulated in the language of hypergraphs where $X^{(r)}$ is simply the edge set of complete $r$-uniform hypergraph with vertex set $X$. I choose to ignore graph-theoretic background of the statement as this form is notationally closer to the final hypercube version. It is easy to see that one does not need to restrict himself to $r$-uniform setting and that one is in fact permitted to consider any hypergraph edge-coloring as long as there is a bound on the size of the edges. 
+
+**Theorem** (Complex Ramsey). Let $n, k, r \in \mathbb{N}$ be given. There exists $N \in \mathbb{N}$ such that for any $N$-element set $X$ and coloring $F : X^{(\le r)} \to [k]$ there exists a color map $c: [r] \to [k]$ and $n$-element subset $Y \subset X$ such that $F|_{Y^{(\le r)}}(A) = c(|A|)$, i.e., color of $(\le r)$-element subset of $Y$ depends only on its order.
+
+*Proof sketch.* We iteratively restrict the initial sufficently large set $X$ to smaller and smaller sets $Y_r \supset Y_{r - 1} \supset Y_{r - 2} \supset ... \supset Y_1$ each time homoginazing $F$ with respect to one layer $Y_i^{(i)}$. 
+
+In the above statement, we loose a bit of uniformity (notice that one cannot do better, simply color different layers by different color; one cannot hope to have single color for all edges). In the hypercube statement, we shall lose even more as we lose symmetry. Hypergraphs can be thought of as fully symmetric functions where the output value depends only on the set of coordinets, not on their order. Our final statement aimns to remove this restriction allowing us to use Ramsey even with functions which are completely arbitrary. By allowing ourselves this generality, we loose even more uniformity, namely, the final color of an edge will not only depend on its size but also on its order. For this, we introduce the following formalism. 
+
+Let $L$ be a linear order (you should think $[N]$) and let $v : [r] \to L$ be a sequence of $r$ elements in $L$. Let $A$ be the set of $s$ distinct values contained in $v$ and let $\psi_A : [s] \cong A$ be their ordering, i.e., $\psi_A(1) < \psi_A(2) < ... < \psi_A(s)$ are elements in $A$. We define the order-type of $v$ to be mapping $o : [r] \to [s]$ such that $\psi_A o = v$, i.e., we take $o = \psi^{-1}_Av$. 
+The important property of order-type is that it is for vector $x$ in one-to-one correspondence with the possible sets of order relations between $x_i$ and $x_j$ for all $i, j$ so the tuple $(\text{comp}(x_i, x_j))_{1 \le i, j \le r}$ completely determines the order type and vice versa. Let $\mathcal{S}^r_l$ be the set of surjections from $[r]$ to $[l]$ and let $\mathcal{O_r} = \bigcup_{1 \le s \le r}\mathcal{S}^r_s$  so that it contains all possible order-types of vectors $v : [r] \to L$. Finally, we define order-type map $\text{otp} : L^{[r]} \to \mathcal{O}_r$ which to vector $v$ assigns its order-type. 
+
+*Example*. Let $L = \mathbb{R}$ and take vector $v = (-3, 2.5, 2, 2.5)$ with $A = \{-3, 2, 2.5\}$, then $\text{opt}(v) = (1, 3, 2, 3)$ or $L = \mathbb{Z}$ and $v = (10, 0, 10, 0, 0)$ with $A = \{ 0, 10 \}$, then $\text{opt}(v) = (2, 1, 2, 1, 1)$.
+
+**Theorem** (Hypercube Ramsey). Let $n, k, r \in \mathbb{N}$ be given. There exists $N \in \mathbb{N}$ such that for $N$-element linear order $X$ and coloring $F : X^r \to [k]$ there exists a color map $c: \mathcal{O}_r \to [k]$ and an $n$-element subset $Y \subset X$ such that $F|_{Y^r}(y) = c_{\text{otp}(y)}$, i.e., the color of $y \in Y^r$ is completely determined by its order-type. 
+
+*Proof.* Let $n$, $k$, and $r$ be given. We apply Complex Ramsey with $n = n$, $k = k^{|\mathcal{O}_r|}$, and $r = r$. 
+With applying the theorem in mind, we construct coloring $G : X^{(\le r)} \times \mathcal{O}_r \to [k] = X^{(\le r)} \to [k]^{\mathcal{O}_r}$. Let $A$ be an $s$-element subset of $X$ and let $o : [r] \to [t]$ be an order-type. If $t \neq s$ define $G(A, o)$ arbitrarily, e.g., define it to be 1. Otherwise we define $G(A, o)$ to be $F(\psi_A o)$. By the above theorem, there exists an $n$-element subset $Y \subset X$ such that $G(A, o)$ depends only on $|A|$ and $o$, i.e., there is a color map $d : [r] \times \mathcal{O}_r \to [k]$ such that $G(A, o) = d(|A|, o)$. Let $y \in Y^r$, let $o : [r] \to [s]$ be its order-type and $A$ the set of valuse in $y$. We see $F(y) = F(\psi_Ao) = G(A, o) = d(|A|, o) = d(s, o)$, i.e. it depends only on the order type $o$.
+
+And finally, the most general version, which I label Multipartite Hypercube Ramsey. In this statement, we gain uniformity of the result which we trade for less homogenous sets $Y$. Namely, we split the coordinates of the hypercubes into groups, each receiving one its private set $Y_i$. The uniformity we gain is that the final color does not depend on the whole order-type but but instead depends on order-types inside the groups. 
+
+**Theorem** (Multipartite Hypercube Ramsey). Let $n, (r_i)_{i \in [m]}, k \in \mathbb{N}$ with $\sum_{i \in
+[m]}r_i = r$ be given. There exists $N$ such that for any $N$-element linear order $X$
+and coloring $F : [X]^r \to k$, there are $n$-element subsets $Y_i \subset X$
+for $i \in [m]$ such that for $y = (y_i)_{i \in [m]} \in \prod_{i \in [m]}Y_i^{r_i}$ the color $F(y_i)_{i \in [m]}$ depends only on the order-types of $y_i$, i.e., there is color map $c : \prod_{i \in [m]}\mathcal{O}_{r_i} \to [k]$ such that $F(y_i)_{i \in [m]} = c(\text{otp}(y_i))_{i \in [m]}$.
+
+*Proof.* Let $n$, $(r_i)_{i \in [m]}$, and $k$ be given. We apply the Hypercube Ramsey with $n = mn, r = \sum_{i \in [m]}r_i$ and $k = k$ to obtain single set $Y \subset X$. We split $Y$ into sets $(Y_i)_{i \in [m]}$ so that $1 \le i < j \le m$ implies $Y_i < Y_j$. Let $y = (y_i)_{i \in m} \in \prod_{i \in [m]} Y_i^{r_i}$. We see that $F(y)$ depends on order-type of $y$. As $i < j$ implies $Y_i < Y_j$ we have that order-type of $y$ is determined by order-types $(\text{opt}(y_i))_{i \in [m]}$: by remark about order-type corresponding to comparison information and the fact that behaviour between coordinates $y_i$ and $y_j$ is for $i < j$ fixed, the only interesting behaviour is between $y^k_i, y^l_i$ which is then encoded by the order-type $\text{opt}(y_i)$.  
+
+## Application
+
+
