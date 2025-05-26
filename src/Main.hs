@@ -16,6 +16,8 @@ import System.FilePath.Find ( find, always, extension, (==?) )
 import System.FilePath ( (</>), makeRelative, takeDirectory, (<.>), dropExtension, dropExtensions )
 import System.Directory
 import System.Directory.PathWalk
+import System.Random ( RandomGen, initStdGen )
+import System.Random.Shuffle ( shuffle' )
 
 import Debug.Trace ( traceShowId )
 
@@ -40,6 +42,7 @@ import Options.Applicative
 data PostMeta = PostMeta { title :: String
                          , desc :: String
                          , image :: Maybe String
+                         , scripts :: [ String ]
                          , postPath :: String } deriving Show
 
 data Post = Post { meta :: PostMeta
@@ -189,6 +192,9 @@ renderPost settings post = H.html $ do
         H.meta ! A.name ( H.stringValue $ "viewport" ) ! A.content ( H.stringValue "width=device-width, initial-scale=1.0" )
         when ( dev settings ) $
            H.script ! A.src ( H.stringValue "https://livejs.com/live.js" ) $ pure ()
+        mapM_ ( \src -> H.script ! A.src ( H.stringValue ( fromRoot settings "public/scripts/" ++ src ++ ".js" ) ) 
+                            $ pure () )
+              ( scripts $ meta post )
         mapM_ ( \href -> H.link ! A.rel "stylesheet" ! A.href ( H.stringValue href ) )
               ( defLinks settings )
     H.body $ do
@@ -206,6 +212,29 @@ renderPost settings post = H.html $ do
                     H.div $ H.string "made with ❤️ in Brno"
                     H.div $ H.a ! A.href ( H.stringValue "https://github.com/sixkey/yabg" ) $ 
                             H.string "github"
+
+-- Card --
+
+cardNames = liftA2 (++)
+                   [ "A", "2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K" ]
+                   [ "C", "S", "H", "D" ]
+
+
+publicImage name stngs = H.stringValue $ fromRoot stngs ( "public/" ++ name )
+           
+renderCard :: YabgSettings -> String -> H.Html
+renderCard stngs name = H.div ! A.class_ "card" $
+                                do H.img ! A.class_ "card-front"
+                                         ! A.src ( publicImage cardSrc stngs )
+                                   H.img ! A.class_ "card-back" 
+                                         ! A.src ( publicImage backSrc stngs )
+    where 
+        cardSrc = "cards/" ++ name ++ "@1x.png"
+        backSrc = "cards/back.png"
+
+renderDeck :: YabgSettings -> H.Html
+renderDeck stngs = H.div ! A.id "deck" $ 
+                mapM_ ( renderCard stngs ) cardNames
 
 -- Pipelinining ---------------------------------------------------------------
 
@@ -266,7 +295,8 @@ readPost postMeta = do
                flushBlockDir
                return ()
             | "%%%" `isPrefixOf` line = do
-               let cmnd = map unpack $ split ( == ' ' )
+
+               let cmnd = map ( unpack . trim ) $ split ( == ',' )
                                                 ( trim . DT.drop 3 $ line )
                flushLines
                tell $ pure $ InlineDir cmnd
@@ -315,6 +345,10 @@ documentToPost ( YabgDoc meta blocks ) = do
             postList ( parseTitle title ) imageLibrary rest
         go ( InlineDir ( "list-library" : title : rest ) ) =
             postList ( parseTitle title ) listLibrary rest
+        go ( InlineDir [ "deck" ] ) =
+            do 
+                sttngs <- asks settings
+                tell ( renderDeck sttngs )
         go ( InlineDir x ) = error $ "undefined yabg command: " ++ show x
         go ( BlockDir ( "div-table" : r : c : tableClass : classes ) text ) =
             let ( rows, cols ) = splitAt ( read r :: Int ) classes
@@ -352,12 +386,15 @@ readPostMeta basePath path = do
       fromPandocMeta :: P.Meta -> PostMeta
       fromPandocMeta pMeta = PostMeta { title = metaGet "title"
                                       , desc = metaGet "desc"
+                                      , scripts = listify $ metaGet "scripts"
                                       , image = maybyfy $ metaGet "image"
                                       , postPath = makeRelative basePath path }
           where
               metaGet s = unpack $ lookupMetaString s pMeta
               maybyfy [] = Nothing
               maybyfy x = Just x
+              listify [] = []
+              listify s = [ s ]
 
 
 yabgCopyDirs :: YabgMonad ()
@@ -419,4 +456,5 @@ main = do print "yabg"
                                     , nav = [ ( "xkucerak", root </> "" )
                                             , ( "uni", root </> "uni" )
                                             , ( "blog", root </> "blog" )
+                                            , ( "misc", root </> "misc" )
                                             ] } []

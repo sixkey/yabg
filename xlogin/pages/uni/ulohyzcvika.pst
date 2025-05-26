@@ -1,0 +1,21 @@
+---
+preset: mzi
+title: "Problémy z cvičenia"
+image: public/nats.png
+---
+
+# Problémy z cvičenia
+
+
+**1. Ukážte, že neexistuje graf na 5 vrcholoch taký, že má viac ako 6 hrán a nemá trojuholník.**
+
+Nech $G$ je pre spor taký. Vieme, že pre každý vrchol $v$ platí $d(v) < 5$, keďže graf $G$ má 5 vrcholov. Zároveň vieme, že $\sum_{v \in V}d(v) = 2|E(G)| \ge 14$, keďže každá 
+    hrana prispieva do stupňa dvoch vrcholov. Z toho pre priemer stupňov platí $\bar{d} = \frac{1}{|V(G)|}\sum_{v \in V(G)}d(v) \ge 2|E(G)|/|V(G)|$ a teda $\bar{d} \ge 14/5 > 2$. Ak je ale priemerný stupeň väčší ako 2, vrchol s maximálnym stupňom $w$ musí mať stupeň minimálne 3 a teda mať stupeň 3 alebo 4 (z $d(v) \le 5$).
+
+Ak $w$ má stupeň 4, potom nemôže existovať hrana medzi jeho susedmi: keby existovala hrana $uv$ taká, že $u$ a $v$ sú susedmi $w$, potom $uvw$ je trojuholník. Graf $G$ je potom ale izomorfný $S_4$ a teda nemá 7 hrán, čo je spor. 
+
+Nech $w$ má teda stupeň 3. Pre rovnaký dôvod ako v predošlom prípade nemôže existovať hrana medzi jeho susedmi. Nech $U$ je množina susedov $w$ a $v$ je vrchol, ktorý nie je $w$ a zároveň nie je v $U$, t.j., je to posledný piaty vrchol. Keďže ${U \choose 2} \cap E(G) = \emptyset$ a $wv \not \in E(G) \cup {U \choose 2}$, potom nutne platí $|E(G)| \le 10 - (3 + 1) = 6$, čo je spor: nerovnosť vyplýva z faktu, že $E(G) \subseteq {V(G) \choose 2} \setminus \big({U \choose 2} \sqcup \{wv\}\big)$, kde $\sqcup$ značí disjunktné zjednotenie.
+
+**2. Nájdite orientáciu $K_6$ takú, že z každého vrcholu vychádza hrana a zároveň neobsahuje cykly dĺžky viac ako 3.**
+
+**3. Ukážte, že neexistuje orientácia $K_6$ taká, že z každého vrcholu vychádza hrana a zároveň neobsahuje trojuholník.**
