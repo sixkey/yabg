@@ -2,10 +2,12 @@
 title: University stuff
 ---
 
-Here is some university related stuff. 
+## Masaryk University
 
-%%% list-library, Teaching Posts, path, uni, not, path, index.pst, not, path, kocicky
+The content here is in Slovak (the Czech students are used to it). 
+
+%%% list-library, Teaching posts, path, uni, not, path, index.pst, not, path, kocicky
 
 ### Seminars
 
-[Kocicky: Bootstrapped Category Theory for Computer Science.](kocicky)
+[Kocicky: Bootstrapped Category Theory for Computer Science.](/uni/kocicky)

@@ -6,35 +6,30 @@ date: 2023-06-14
 
 
 <div class = 'me row'>
-<div class = 'col-lg-5'>
-  <img class = 'me-pic' src='public/ja.jpg'/>
-</div>
+<div class = 'col-lg-5'><div class = 'img-container'><img class = 'me-pic' src='public/ja.jpg'/></div></div>
 <div class = 'col-lg-7'>
 <p class='me-text'>
-I am a first year master student at the [Faculty of Informatics, Masaryk
-University](https://www.fi.muni.cz) working in the
-[DIMEA](https://www.fi.muni.cz/research/laboratories/dimea.html) laboratory
-under the supervision of [Dan Kráľ](https://www.ucw.cz/~kral/). My main
-interests are extremal graph theory and combinatorial limits.
+I am a doctoral student under the supervision of [Dan Kráľ](https://www.ucw.cz/~kral/index.html.en) and [Matija Bucić](https://sites.google.com/princeton.edu/matija-bucic/home) currently sitting at [Max Planck Institute for Mathematics in the Sciences](https://www.mis.mpg.de/) in Leipzig. 
+My main interests are extremal combinatorics, probabilistic combinatorics and theory of combinatorial limits. 
 </p>
 </div>
 </div>
 
 ## Talks
 
-1. [Uniform Turán Density of 3-uniform Hypergraphs](public/slides/uniformturan.pdf) at ISTA workshop on November 24th, 2023 and Summit 280 on July 12th, 2024
+- [Uniform Turán Density of 3-uniform Hypergraphs](public/slides/uniformturan.pdf) at ISTA workshop on November 24th, 2023 and Summit 280 on July 12th, 2024
 
 ## Papers
 
-1. F. Garbe, D. Iľkovič, D. Kráľ, F. Kučerák, A. Lamaison: *Hypergraphs with uniform Turán density equal to 8/27*, arXiv preprint [arXiv:2407.05829](https://doi.org/10.48550/arXiv.2407.05829).
+- D. Kráľ, F. Kučerák, A. Lamaison, G. Tardos: *Uniform Turán density---classification of palettes*, arXiv preprint [arXiv:2505.17325](https://doi.org/10.48550/arXiv.2505.17325).
 
-2. D. Kráľ, F. Kučerák, A. Lamaison, G. Tardos: *Uniform Turán density---classification of palettes*, arXiv preprint [arXiv:2505.17325](https://doi.org/10.48550/arXiv.2505.17325).
+- F. Garbe, D. Iľkovič, D. Kráľ, F. Kučerák, A. Lamaison: *Hypergraphs with uniform Turán density equal to 8/27*, arXiv preprint [arXiv:2407.05829](https://doi.org/10.48550/arXiv.2407.05829).
 
 ## Teaching
 
-#### Masaryk University
+### Masaryk University
 
-%%[ div-table, 1, 2, div-table container, row, col-lg-2 nopadding, col-lg-10 
+%%[ div-table, 1, 2, div-table container, row, col-lg-3 nopadding, col-lg-9 
 Autumn 2024
 TA in Mathematical foundations of computer science, Graph theory, and Mathematical logic.
 Autumn 2023 
@@ -53,6 +48,6 @@ kucerak at mail.muni.cz
 
 ## Theses
 
-1. [Extremal Problems with Uniform Density Constraints](https://is.muni.cz/th/pgzq6/?lang=en) for Bc.
+- [Extremal Problems with Uniform Density Constraints](https://is.muni.cz/th/pgzq6/?lang=en) for Bc.
 
-2. [Quasirandomness in combinatorics](https://is.muni.cz/th/djdvn/?lang=en) for Mgr.
+- [Quasirandomness in combinatorics](https://is.muni.cz/th/djdvn/?lang=en) for Mgr.

@@ -209,7 +209,7 @@ renderPost settings post = H.html $ do
                     content post
             H.footer $ do 
                 H.div ! A.class_ "footer-text" $ do 
-                    H.div $ H.string "made with ❤️ in Brno"
+                    H.div $ H.string "made with ❤️ in Brno and Leipzig"
                     H.div $ H.a ! A.href ( H.stringValue "https://github.com/sixkey/yabg" ) $ 
                             H.string "github"
 
@@ -456,5 +456,4 @@ main = do print "yabg"
                                     , nav = [ ( "xkucerak", root </> "" )
                                             , ( "uni", root </> "uni" )
                                             , ( "blog", root </> "blog" )
-                                            , ( "misc", root </> "misc" )
                                             ] } []
