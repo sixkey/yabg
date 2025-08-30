@@ -208,6 +208,9 @@ renderPost settings post = H.html $ do
                         renderNavigation ( nav settings )
                     content post
             H.footer $ do 
+                H.div ! A.class_ "footer-name" $ do 
+                    H.div $ H.a ! A.href ( H.stringValue "https://sixkey.github.io" ) $
+                            H.string "Filip Kučerák"
                 H.div ! A.class_ "footer-text" $ do 
                     H.div $ H.string "made with ❤️ in Brno and Leipzig"
                     H.div $ H.a ! A.href ( H.stringValue "https://github.com/sixkey/yabg" ) $ 
