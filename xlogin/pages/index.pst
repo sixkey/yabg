@@ -9,7 +9,7 @@ date: 2023-06-14
 <div class = 'col-lg-5'><div class = 'img-container'><img class = 'me-pic' src='public/ja.jpg'/></div></div>
 <div class = 'col-lg-7'>
 <p class='me-text'>
-I am a doctoral student under the supervision of [Dan Kráľ](https://www.ucw.cz/~kral/index.html.en) and [Matija Bucić](https://sites.google.com/princeton.edu/matija-bucic/home) currently sitting at [Max Planck Institute for Mathematics in the Sciences](https://www.mis.mpg.de/) in Leipzig. 
+I am a doctoral student under the supervision of [Dan Kráľ](https://www.ucw.cz/~kral/index.html.en) and [Matija Bucić](https://sites.google.com/princeton.edu/matija-bucic/home) currently sitting at [Max Planck Institute for Mathematics in the Sciences](https://www.mis.mpg.de/) and [Leipzig University](https://www.uni-leipzig.de/en). 
 My main interests are extremal combinatorics, probabilistic combinatorics and theory of combinatorial limits. 
 </p>
 <p class='contact'>
@@ -21,19 +21,24 @@ filip.kucerak at mis.mpg.de
 </div>
 </div>
 
+## Papers
+
+- D. Kráľ, M. Krnc, F. Kučerák, B. Lidický, J. Volec: *Sidorenko property and forcing in regular tournaments*, arXiv preprint [arXiv:2602.12551](https://doi.org/10.48550/arXiv.2602.12551).
+
+- D. Kráľ, F. Kučerák, A. Lamaison, G. Tardos: *Uniform Turán density---classification of palettes*, arXiv preprint [arXiv:2505.17325](https://doi.org/10.48550/arXiv.2505.17325).
+
+- F. Garbe, D. Iľkovič, D. Kráľ, F. Kučerák, A. Lamaison. *Hypergraphs with uniform Turán density equal to 8/27*. Combinatorics, Probability and Computing **35(2)** (2026).
+[doi:10.1017/S0963548325100308](https://doi.org/10.1017/S0963548325100308).
+
 ## Talks
+
+- Sidorenko property and forcing in regular tournaments at [Discrete Seminar in Iowa State University](https://sites.google.com/view/dmseminar) on February 19th, 2026
 
 - [Uniform Turán Density -- palette classification](public/slides/eurocomb.pdf) at Eurocomb 2025 on August 28th, 2025
 
 - Extremal Combinatorics at Graph Learning Meets Theoretical Computer Science workshop on August 12th, 2025
 
 - [Uniform Turán Density of 3-uniform Hypergraphs](public/slides/uniformturan.pdf) at ISTA workshop on November 24th, 2023 and Summit 280 on July 12th, 2024
-
-## Papers
-
-- D. Kráľ, F. Kučerák, A. Lamaison, G. Tardos: *Uniform Turán density---classification of palettes*, arXiv preprint [arXiv:2505.17325](https://doi.org/10.48550/arXiv.2505.17325).
-
-- F. Garbe, D. Iľkovič, D. Kráľ, F. Kučerák, A. Lamaison: *Hypergraphs with uniform Turán density equal to 8/27*, arXiv preprint [arXiv:2407.05829](https://doi.org/10.48550/arXiv.2407.05829).
 
 ## Teaching
 
